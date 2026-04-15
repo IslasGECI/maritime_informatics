@@ -1,3 +1,3 @@
 library(testthat)
-library(templater)
-test_check("templater")
+library(maritime_informatics)
+test_check("maritime_informatics")
