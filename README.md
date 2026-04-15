@@ -1,6 +1,7 @@
 <a href="https://www.islas.org.mx"><img src="https://www.islas.org.mx/img/logo.svg" align="right" width="256" /></a>
 
-# Template for R projects
+# Maritime Informatics
+
 [![codecov](https://codecov.io/gh/IslasGECI/maritime_informatics/graph/badge.svg?token=ISI1P07QMK)](https://codecov.io/gh/IslasGECI/maritime_informatics)
 ![example branch
 parameter](https://github.com/IslasGECI/maritime_informatics/actions/workflows/actions.yml/badge.svg)
@@ -9,13 +10,16 @@ parameter](https://github.com/IslasGECI/maritime_informatics/actions/workflows/a
 ![commits](https://img.shields.io/github/commit-activity/y/IslasGECI/maritime_informatics)
 ![R-version](https://img.shields.io/github/r-package/v/IslasGECI/maritime_informatics)
 
-## Step to use
-- Rename links in `README`.
-- Rename links in `CHANGELOG.md`.
-- Rename image name in `docker-compose.yml`.
-- Rename package name in `DESCRIPTION`.
-- Rename image names in `actions.yml`.
-- Rename package name on install recipe in `Makefile`.
-- Rename package name in `teststhat.R`
-- Rename package name in `test_nothing.R`
-- Update token `coverage.R`
+## Description
+
+R package for maritime data analysis and processing. Provides tools for working with AIS (Automatic Identification System) data, vessel trajectory analysis, and maritime traffic studies.
+
+## Installation
+
+```r
+devtools::install_github("IslasGECI/maritime_informatics")
+```
+
+## References
+
+Data sources and methodologies informed by [maritime-informatics.com](http://maritime-informatics.com).
