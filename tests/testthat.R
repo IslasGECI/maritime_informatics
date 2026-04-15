@@ -1,3 +1,3 @@
 library(testthat)
-library(maritime_informatics)
-test_check("maritime_informatics")
+library(maritimeinformatics)
+test_check("maritimeinformatics")

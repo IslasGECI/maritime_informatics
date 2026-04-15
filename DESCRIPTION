@@ -1,4 +1,4 @@
-Package: maritime_informatics
+Package: maritimeinformatics
 Title: Template for R projects
 Authors@R: c(
     person(given = "Ciencia de Datos",
