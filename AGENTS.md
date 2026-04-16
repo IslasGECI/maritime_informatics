@@ -1,6 +1,20 @@
 ## Docker service
 
-- `docker compose up islasgeci`: to start the PostGIS service
+- `docker compose up islasgeci`: start the PostGIS service
+- `make init-db`: initialize AIS data schema in PostGIS
+
+## Make commands
+
+| Command | Description |
+|---------|-------------|
+| `make setup` | Clean, install dependencies, build package |
+| `make tests` | Run test suite |
+| `make check` | Verify code formatting |
+| `make coverage` | Generate coverage report |
+| `make format` | Format code with styler |
+| `make red` | Run failing tests (TDD) |
+| `make green` | Run passing tests (TDD) |
+| `make refactor` | Refactor with passing tests |
 
 ## psql commands
 

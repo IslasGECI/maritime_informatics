@@ -12,12 +12,43 @@ parameter](https://github.com/IslasGECI/maritime_informatics/actions/workflows/a
 
 ## Description
 
-R package for maritime data analysis and processing. Provides tools for working with AIS (Automatic Identification System) data, vessel trajectory analysis, and maritime traffic studies.
+R package for maritime data analysis and processing. Provides tools for working with AIS
+(Automatic Identification System) data, vessel trajectory analysis, and maritime traffic
+studies.
+
+## Key Technologies
+
+- **R** with R6 and tidyverse
+- **PostgreSQL/PostGIS** for spatial maritime data
+- **Docker** for containerized development
+- **testthat** for unit testing
+- **styler** for code formatting
+
+## Prerequisites
+
+- Docker and Docker Compose (for containerized development)
 
 ## Installation
 
+### R package
+
 ```r
 devtools::install_github("IslasGECI/maritime_informatics")
+```
+
+### Docker (recommended)
+
+```bash
+docker compose up islasgeci
+```
+
+## Database Setup
+
+Initialize the AIS data schema in PostGIS:
+
+```bash
+docker compose up -d postgis
+make init-db
 ```
 
 ## References
