@@ -1,10 +1,12 @@
-## Docker Services
+## Docker service
 
-- `docker compose up -d postgis` - Start PostGIS database
-- `docker compose run --rm islasgeci` - Interactive shell in container
-- `docker compose run --rm postgis psql -h postgis -U postgres` - Connect to DB
+- `docker compose up islasgeci`: to start the PostGIS service
 
-PostGIS connection: host=`postgis`, port=`5432`, user=`postgres`, password=`4705`
+## psql commands
+
+- Use long-form flags: `--host` not `-h`, `--username` not `-U`, `--dbname` not `-d`
+- Run SQL file: `psql --host=postgis --username=postgres --file=/workdir/src/init_ais_data_static_ships.sql`
+- Interactive: `psql --host=postgis --username=postgres`
 
 ## Coding Style
 
