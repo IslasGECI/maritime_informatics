@@ -7,17 +7,11 @@ services:
     command: bash
     volumes:
       - $PWD:/workdir
-    networks:
-      - marineinformatics-network
+    depends_on:
+      - postgis
 
   postgis:
     image: postgis/postgis
     container_name: marineinformatics-postgis
     environment:
       POSTGRES_PASSWORD: 4705
-    networks:
-      - marineinformatics-network
-
-networks:
-  marineinformatics-network:
-    driver: bridge
