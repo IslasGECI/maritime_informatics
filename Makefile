@@ -7,6 +7,7 @@ all: check coverage
     format \
     green \
     init \
+    init-db \
     install \
     red \
     refactor \
@@ -73,3 +74,6 @@ install:
 
 tests:
 	Rscript -e "devtools::test(stop_on_failure = TRUE)"
+
+init-db:
+	psql -h postgis -U postgres -f /workdir/src/init_ais_data_static_ships.sql
