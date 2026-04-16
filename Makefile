@@ -76,4 +76,4 @@ tests:
 	Rscript -e "devtools::test(stop_on_failure = TRUE)"
 
 init-db:
-	psql -h postgis -U postgres -f /workdir/src/init_ais_data_static_ships.sql
+	psql --host=postgis --username=postgres --file=/workdir/src/init_ais_data_static_ships.sql
