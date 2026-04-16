@@ -76,4 +76,6 @@ tests:
 	Rscript -e "devtools::test(stop_on_failure = TRUE)"
 
 init-db:
+	psql --host=postgis --username=postgres --command 'DROP SCHEMA IF EXISTS ais_data CASCADE;'
 	psql --host=postgis --username=postgres --file=/workdir/src/init_ais_data_static_ships.sql
+	psql --host=postgis --username=postgres --command '\dt ais_data.*' | grep static_ships
