@@ -1,0 +1,1 @@
+\copy ais_data.static_ships (sourcemmsi, imo, callsign, shipname, shiptype, to_bow, to_stern, to_starboard, to_port, eta, draught, destination, mothershipmmsi, ts) FROM '/workdir/data/external/nari_static.csv' DELIMITER ',' CSV HEADER;

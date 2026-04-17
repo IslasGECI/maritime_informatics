@@ -78,4 +78,7 @@ tests:
 init-db:
 	psql --host=postgis --username=postgres --command 'DROP SCHEMA IF EXISTS ais_data CASCADE;'
 	psql --host=postgis --username=postgres --file=/workdir/src/init_ais_data_static_ships.sql
-	psql --host=postgis --username=postgres --command '\dt ais_data.*' | grep static_ships
+	unzip -o "data/external/[P1] AIS Data.zip" "nari_static.csv" -d data/external/
+	psql --host=postgis --username=postgres --file=/workdir/src/import_ais_static_ships.sql
+	psql --host=postgis --username=postgres --command "SELECT COUNT(DISTINCT shipname) FROM ais_data.static_ships;" \
+		| grep 4824
