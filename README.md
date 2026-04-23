@@ -39,8 +39,7 @@ devtools::install_github("IslasGECI/maritime_informatics")
 ## Usage
 
 ```bash
-$ docker compose up islasgeci
-# make init-db
+docker compose run --rm islasgeci
 ```
 
 ## References
