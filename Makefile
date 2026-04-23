@@ -9,9 +9,11 @@ all: check coverage
     init \
     init-db \
     install \
+    mutants \
     red \
     refactor \
     setup \
+    ships_view \
     tests
 
 check:
@@ -24,6 +26,7 @@ check:
 
 clean:
 	rm --force *.tar.gz
+	rm --force --recursive data/processed
 	rm --force --recursive tests/testthat/_snaps
 	rm --force NAMESPACE
 
@@ -65,8 +68,6 @@ refactor: format
 	|| git restore .
 	chmod g+w -R .
 
-setup: clean install
-
 install:
 	R -e "devtools::install()" && \
 	R -e "devtools::check(error_on = 'error')" && \
@@ -82,3 +83,14 @@ init-db:
 	psql --host=postgis --username=postgres --file=/workdir/src/import_ais_static_ships.sql
 	psql --host=postgis --username=postgres --command "SELECT COUNT(DISTINCT shipname) FROM ais_data.static_ships;" \
 		| grep 4824
+
+ships_view: init-db
+	psql --host=postgis --username=postgres --file=/workdir/src/create_ais_ships_view.sql
+
+data/processed/n_empty_shipname.csv: ships_view
+	mkdir --parents $(@D)
+	psql --host=postgis --username=postgres --file=/workdir/src/count_empty_shipname.sql --output=$@ --csv
+
+data/processed/n_reused_mmsi.csv: ships_view
+	mkdir --parents $(@D)
+	psql --host=postgis --username=postgres --file=/workdir/src/compute_reused_mmsi_count.sql --output=$@ --csv

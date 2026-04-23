@@ -36,19 +36,11 @@ studies.
 devtools::install_github("IslasGECI/maritime_informatics")
 ```
 
-### Docker (recommended)
+## Usage
 
 ```bash
-docker compose up islasgeci
-```
-
-## Database Setup
-
-Initialize the AIS data schema in PostGIS:
-
-```bash
-docker compose up -d postgis
-make init-db
+$ docker compose up islasgeci
+# make init-db
 ```
 
 ## References

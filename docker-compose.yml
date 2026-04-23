@@ -12,6 +12,6 @@ services:
 
   postgis:
     image: postgis/postgis
-    container_name: marineinformatics-postgis
+    container_name: maritime_informatics_postgis
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
