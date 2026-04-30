@@ -3,7 +3,8 @@ all: check coverage
 .PHONY: \
     check \
     clean \
-    coastline \
+    compute_voronoi \
+    context_data \
     coverage \
     format \
     green \
@@ -28,6 +29,7 @@ check:
 clean:
 	rm --force *.tar.gz
 	rm --force --recursive data/processed
+	rm --force --recursive data/external
 	rm --force --recursive tests/testthat/_snaps
 	rm --force NAMESPACE
 
@@ -96,15 +98,20 @@ data/processed/n_reused_mmsi.csv: ships_view
 	mkdir --parents $(@D)
 	psql --host=postgis --username=postgres --file=/workdir/src/compute_reused_mmsi_count.sql --output=$@ --csv
 
-ports:
-	unzip -o "data/external/[C1] Ports of Brittany.zip" -d data/external/
-	unzip -o "data/external/[C4] Fishing Areas (European commission).zip" -d data/external/
-	unzip -o "data/external/[C5] Fishing Constraints.zip" -d data/external/
-
-coastline:
-	unzip -o "data/external/[C2] European Coastline.zip" -d data/external/
+context_data:
 	psql --host=postgis --username=postgres --command 'DROP SCHEMA IF EXISTS context_data CASCADE;'
-	psql --host=postgis --username=postgres --command 'CREATE SCHEMA context_data;'
+	psql --host=postgis --username=postgres --file=/workdir/src/init_context_data.sql
+	unzip -o "data/external/[C1] Ports of Brittany.zip" -d data/external/
+	shp2pgsql -s 3035 -I -D \
+	    "data/external/port.shp" \
+	    context_data.ports \
+	    > /tmp/ports.sql
+	psql --host=postgis --username=postgres --file=/tmp/ports.sql
+	psql --host=postgis --username=postgres --file=/workdir/src/alter_context_data.sql
+	psql --host=postgis --username=postgres \
+	    --command "SELECT COUNT(*) FROM context_data.ports;" \
+	    | grep 222
+	unzip -o "data/external/[C2] European Coastline.zip" -d data/external/
 	shp2pgsql -s 3035 -I -D \
 	    "data/external/Europe Coastline (Polygone).shp" \
 	    context_data.europe_coastline_polygon \
@@ -113,3 +120,9 @@ coastline:
 	psql --host=postgis --username=postgres \
 	    --command "SELECT COUNT(*) FROM context_data.europe_coastline_polygon;" \
 	    | grep 71514
+
+compute_voronoi: context_data
+	psql --host=postgis --username=postgres --file=/workdir/src/compute_voronoi.sql
+	psql --host=postgis --username=postgres \
+	    --command "SELECT COUNT(*) FROM data_analysis.ports_voronoi;" \
+	    | grep 222
