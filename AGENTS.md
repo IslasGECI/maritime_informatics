@@ -11,6 +11,10 @@ Three services in `docker-compose.yml`:
 `data/external/` is volume-mounted from the host. Files there are already in
 the container at `/workdir/data/external/` — never `docker cp` into the container.
 
+The `data/external/` directory is ephemeral. It is created and populated by the
+`data` service on every compose run, and removed by `make clean`. Do not commit
+files under `data/processed/` or `data/external/`.
+
 The user starts the container before invoking the agent. Run all commands inside
 the container with:
 
@@ -18,7 +22,7 @@ the container with:
 
 For example:
 - `docker exec maritime_informatics_ci make init-db`
-- `docker exec maritime_informatics_ci make coastline`
+- `docker exec maritime_informatics_ci make context_data`
 
 ## Make commands
 
@@ -34,7 +38,8 @@ For example:
 | `make refactor` | Refactor with passing tests |
 | `make init-db` | Initialize AIS data schema and import static ships |
 | `make ships_view` | Create AIS ships view (depends on init-db) |
-| `make coastline` | Import European coastline polygons |
+| `make context_data` | Initialize context data schema and import ports + coastline |
+| `make compute_voronoi` | Generate Voronoi tessellation from ports (depends on context_data) |
 
 ### Make target conventions
 
@@ -61,6 +66,7 @@ SQL is the single source of truth for DB schema and operations. Scripts in
 Two-phase pattern for data ingestion:
 - `init_<entity>.sql` — creates schema + table
 - `import_<entity>.sql` — uses `\copy` to load CSV data
+- `alter_<entity>.sql` — post-import transformations (e.g. column renames)
 
 ## psql commands
 
@@ -90,6 +96,9 @@ Make fails if `grep` finds no match — implicit assertion.
 - `shp2pgsql` is provided by the `postgis` apt package (installed in `islasgeci`)
 - Read SRID from the shapefile's `.prj` file before importing
   (e.g. ETRS_1989_LAEA → EPSG:3035)
+- **Warning:** `port.shp` has a mislabeled `.prj` file claiming WGS_1984
+  (EPSG:4326). Actual coordinates are already in EPSG:3035. Always use
+  `-s 3035` for port imports.
 - Generate SQL to `/tmp/<table>.sql`, then run `psql --file=/tmp/<table>.sql`
   (preserves the `--file=` pattern; avoids polluting `src/` with large
   generated dumps)
@@ -110,6 +119,27 @@ Make fails if `grep` finds no match — implicit assertion.
 - Prefer long-form flags: `--yes` not `-y`, `--force` not `-f`
 - Multi-line formatting with backslash continuations for readability
 - Explicit > concise
+
+## Git conventions
+
+- Commit messages use emoji prefixes followed by an imperative verb
+  (e.g., `🔧 Fix column name typo`, `📝 Update AGENTS.md`)
+- Emoji categories established in the project:
+
+| Emoji | Category |
+|-------|----------|
+| 🗺️ | Geospatial data |
+| 🛠️ | Tooling / configuration |
+| 🚢 | Ships / domain feature |
+| 📥 | Data import |
+| 📝 | Documentation |
+| 🔧 | Maintenance / fixes |
+| 🔓 | Security |
+| 🗄️ | Database |
+| 🤖 | AI / automation |
+
+- No Conventional Commits scopes (`feat:`, `fix:`) — the emoji serves that role
+- Single-line subject, ~20 words max, no trailing period
 
 ## TDD workflow
 
