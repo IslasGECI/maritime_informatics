@@ -39,7 +39,7 @@ devtools::install_github("IslasGECI/maritime_informatics")
 ## Usage
 
 ```bash
-docker compose run --rm islasgeci
+docker compose run --name maritime_informatics_ci --rm islasgeci
 ```
 
 ## References

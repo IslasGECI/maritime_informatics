@@ -3,6 +3,7 @@ all: check coverage
 .PHONY: \
     check \
     clean \
+    coastline \
     coverage \
     format \
     green \
@@ -94,3 +95,21 @@ data/processed/n_empty_shipname.csv: ships_view
 data/processed/n_reused_mmsi.csv: ships_view
 	mkdir --parents $(@D)
 	psql --host=postgis --username=postgres --file=/workdir/src/compute_reused_mmsi_count.sql --output=$@ --csv
+
+ports:
+	unzip -o "data/external/[C1] Ports of Brittany.zip" -d data/external/
+	unzip -o "data/external/[C4] Fishing Areas (European commission).zip" -d data/external/
+	unzip -o "data/external/[C5] Fishing Constraints.zip" -d data/external/
+
+coastline:
+	unzip -o "data/external/[C2] European Coastline.zip" -d data/external/
+	psql --host=postgis --username=postgres --command 'DROP SCHEMA IF EXISTS context_data CASCADE;'
+	psql --host=postgis --username=postgres --command 'CREATE SCHEMA context_data;'
+	shp2pgsql -s 3035 -I -D \
+	    "data/external/Europe Coastline (Polygone).shp" \
+	    context_data.europe_coastline_polygon \
+	    > /tmp/europe_coastline_polygon.sql
+	psql --host=postgis --username=postgres --file=/tmp/europe_coastline_polygon.sql
+	psql --host=postgis --username=postgres \
+	    --command "SELECT COUNT(*) FROM context_data.europe_coastline_polygon;" \
+	    | grep 71514
