@@ -80,7 +80,7 @@ tests:
 	Rscript -e "devtools::test(stop_on_failure = TRUE)"
 
 init-db:
-	psql --host=postgis --username=postgres --command 'DROP SCHEMA IF EXISTS ais_data CASCADE;'
+	psql --host=postgis --username=postgres --command "DROP SCHEMA IF EXISTS ais_data CASCADE;"
 	psql --host=postgis --username=postgres --file=/workdir/src/init_ais_data_static_ships.sql
 	unzip -o "data/external/[P1] AIS Data.zip" "nari_static.csv" -d data/external/
 	psql --host=postgis --username=postgres --file=/workdir/src/import_ais_static_ships.sql
@@ -99,15 +99,14 @@ data/processed/n_reused_mmsi.csv: ships_view
 	psql --host=postgis --username=postgres --file=/workdir/src/compute_reused_mmsi_count.sql --output=$@ --csv
 
 context_data:
-	psql --host=postgis --username=postgres --command 'DROP SCHEMA IF EXISTS context_data CASCADE;'
-	psql --host=postgis --username=postgres --file=/workdir/src/init_context_data.sql
+	psql --host=postgis --username=postgres --command "DROP SCHEMA IF EXISTS context_data CASCADE; CREATE SCHEMA context_data;"
 	unzip -o "data/external/[C1] Ports of Brittany.zip" -d data/external/
 	shp2pgsql -s 3035 -I -D \
 	    "data/external/port.shp" \
 	    context_data.ports \
 	    > /tmp/ports.sql
 	psql --host=postgis --username=postgres --file=/tmp/ports.sql
-	psql --host=postgis --username=postgres --file=/workdir/src/alter_context_data.sql
+	psql --host=postgis --username=postgres --command "ALTER TABLE context_data.ports RENAME COLUMN geom TO geom3035;"
 	psql --host=postgis --username=postgres \
 	    --command "SELECT COUNT(*) FROM context_data.ports;" \
 	    | grep 222
