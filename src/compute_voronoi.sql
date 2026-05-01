@@ -1,5 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS data_analysis;
 
+DROP TABLE IF EXISTS data_analysis.ports_voronoi;
+
 CREATE TABLE data_analysis.ports_voronoi AS
 SELECT por_id AS port_id,
        libelle_po AS port_name,
