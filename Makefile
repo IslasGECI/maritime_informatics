@@ -3,7 +3,6 @@ all: check coverage
 .PHONY: \
     check \
     clean \
-    compute_voronoi \
     context_data \
     coverage \
     format \
@@ -12,6 +11,7 @@ all: check coverage
     init-db \
     install \
     mutants \
+    plot_voronoi \
     red \
     refactor \
     setup \
@@ -120,8 +120,7 @@ context_data:
 	    --command "SELECT COUNT(*) FROM context_data.europe_coastline_polygon;" \
 	    | grep 71514
 
-compute_voronoi: context_data
+reports/figures/voronoi_map.png: context_data
 	psql --host=postgis --username=postgres --file=/workdir/src/compute_voronoi.sql
-	psql --host=postgis --username=postgres \
-	    --command "SELECT COUNT(*) FROM data_analysis.ports_voronoi;" \
-	    | grep 222
+	bash /workdir/src/export_voronoi_gpkg.sh data/processed/maritime_context.gpkg
+	bash /workdir/src/plot_voronoi_gmt.sh data/processed/maritime_context.gpkg $@

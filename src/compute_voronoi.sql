@@ -5,7 +5,6 @@ DROP TABLE IF EXISTS data_analysis.ports_voronoi;
 CREATE TABLE data_analysis.ports_voronoi AS
 SELECT por_id AS port_id,
        libelle_po AS port_name,
-       geom3035,
        voronoi_zone3035
 FROM context_data.ports
 LEFT JOIN (
