@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- All R-related code, tests, package metadata, and documentation. The project
+  now uses GMT for plotting instead of R.
+
 ## [0.1.0] - 2024-10-03
 
 ### Added

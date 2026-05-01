@@ -4,7 +4,7 @@ Three services in `docker-compose.yml`:
 
 | Service | Role |
 |---------|------|
-| `islasgeci` | Main app container where `make` runs (R + postgresql-client + postgis) |
+| `islasgeci` | Main app container where `make` runs (GMT + GDAL + postgresql-client + postgis) |
 | `postgis` | PostGIS database; hostname `postgis`, user `postgres`, auth `trust` |
 | `data` | One-shot init container that populates `data/external/` then exits |
 
@@ -21,32 +21,25 @@ the container with:
 `docker exec maritime_informatics_ci <command>`
 
 For example:
-- `docker exec maritime_informatics_ci make init-db`
-- `docker exec maritime_informatics_ci make context_data`
+- `docker exec maritime_informatics_ci make init_db`
+- `docker exec maritime_informatics_ci make reports/figures/voronoi_map.png`
 
 ## Make commands
 
 | Command | Description |
 |---------|-------------|
-| `make setup` | Clean, install dependencies, build package |
-| `make tests` | Run test suite |
-| `make check` | Verify code formatting |
-| `make coverage` | Generate coverage report |
-| `make format` | Format code with styler |
-| `make red` | Run failing tests (TDD) |
-| `make green` | Run passing tests (TDD) |
-| `make refactor` | Refactor with passing tests |
-| `make init-db` | Initialize AIS data schema and import static ships |
-| `make ships_view` | Create AIS ships view (depends on init-db) |
-| `make context_data` | Initialize context data schema and import ports + coastline |
-| `make compute_voronoi` | Generate Voronoi tessellation from ports (depends on context_data) |
+| `make all` | Build the Voronoi map (default target) |
+| `make clean` | Remove generated data and external archives |
+| `make init` | Configure git inside the container |
+| `make init_db` | Initialize context data schema and import ports + coastline |
+| `make reports/figures/voronoi_map.png` | Generate Voronoi tessellation map |
 
 ### Make target conventions
 
-- All targets must be listed in `.PHONY` (kept alphabetized)
+- All phony targets must be listed in `.PHONY` (kept alphabetized)
 - File targets use `$@` (output path) and `$(@D)` (parent directory)
 - Create output directories with `mkdir --parents $(@D)`
-- Targets compose via dependencies (e.g. `ships_view: init-db`)
+- Targets compose via dependencies (e.g. `voronoi_map.png: init_db`)
 
 ## Database conventions
 
@@ -54,7 +47,6 @@ For example:
 
 | Schema | Purpose |
 |--------|---------|
-| `ais_data` | AIS ship records (raw imports) |
 | `context_data` | Geospatial context (ports, coastlines) |
 | `data_analysis` | Derived/analytical outputs (e.g. Voronoi) |
 
@@ -62,11 +54,6 @@ For example:
 
 SQL is the single source of truth for DB schema and operations. Scripts in
 `src/` are auditable, diff-able, and reviewable in PRs.
-
-Two-phase pattern for data ingestion:
-- `init_<entity>.sql` — creates schema + table
-- `import_<entity>.sql` — uses `\copy` to load CSV data
-- `alter_<entity>.sql` — post-import transformations (e.g. column renames)
 
 ## psql commands
 
@@ -107,6 +94,14 @@ Make fails if `grep` finds no match — implicit assertion.
   - `-I` create spatial index
   - `-D` dump format (faster)
 
+## Plotting with GMT
+
+- GMT 6 is used to render maps from GeoPackage data
+- Layers are extracted to temporary shapefiles via `ogr2ogr` for GMT consumption
+- Use predefined GMT colormaps (e.g. `/usr/share/gmt/cpt/paired.cpt`)
+- All layers in the GeoPackage use EPSG:4326 (lat/lon) for consistency
+- Layer order matters: bottom layer plotted first, top layer last
+
 ## Data extraction
 
 - Archives in `data/external/*.zip` are extracted in place:
@@ -140,14 +135,3 @@ Make fails if `grep` finds no match — implicit assertion.
 
 - No Conventional Commits scopes (`feat:`, `fix:`) — the emoji serves that role
 - Single-line subject, ~20 words max, no trailing period
-
-## TDD workflow
-
-The Makefile encodes a TDD cycle:
-
-- `make red` — expects tests to fail; commits failing tests with `🛑🧪 Fail tests`
-- `make green` — expects tests to pass; commits implementation with `✅ Pass tests`
-- `make refactor` — expects tests to pass; commits both with `♻️  Refactor`
-
-Each target runs `styler` first, then `devtools::test(stop_on_failure = TRUE)`,
-and uses `git restore` to roll back on the wrong outcome.

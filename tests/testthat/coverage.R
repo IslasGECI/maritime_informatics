@@ -1,6 +1,0 @@
-library(covr)
-cov <- package_coverage()
-print(cov)
-zero_coverage(cov)
-report(cov, file = file.path("/workdir/tests/coverage-report.html"), browse = FALSE)
-codecov(coverage = cov, token = "f86df630-8ce7-4bca-8c2b-06657f360161")
