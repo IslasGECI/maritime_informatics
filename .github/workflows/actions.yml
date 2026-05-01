@@ -1,27 +1,120 @@
-name: Tests
-on: push
+name: Render report
+on:
+  push:
+    branches:
+      - develop
+
 jobs:
-  actions:
+  build-image:
+    name: Build Docker image 🐋
     runs-on: ubuntu-latest
     steps:
-    - name: Copia repositorio
-      uses: actions/checkout@main
-    - name: Construye imagen
-      run: docker build --tag islasgeci/maritime_informatics .
-    - name: Create/Update tag
-      uses: rickstaa/action-create-tag@v1.5.4
-      with:
-        tag: "latest"
-        message: "Latest release"
-        force_push_tag: true
-    - name: Docker log-in
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-    - name: Push latest Docker image to Docker Hub
-      run: docker push islasgeci/maritime_informatics:latest
-    - name: Push SHA tag to Docker Hub
-      run: |
-        docker tag islasgeci/maritime_informatics:latest islasgeci/maritime_informatics:${GITHUB_SHA:0:4}
-        docker push islasgeci/maritime_informatics:${GITHUB_SHA:0:4}
+      - name: Checkout repo
+        uses: actions/checkout@main
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and export
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          tags: islasgeci/maritime_informatics:latest
+          outputs: type=docker,dest=/tmp/image.tar
+      - name: Upload artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: image
+          path: /tmp/image.tar
+          retention-days: 14
+
+  render-voronoi:
+    name: Render Voronoi map
+    needs: [build-image]
+    runs-on: ubuntu-latest
+    services:
+      postgis:
+        image: postgis/postgis
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@main
+      - name: Download artifact
+        uses: actions/download-artifact@main
+        with:
+          name: image
+          path: /tmp
+      - name: Load image
+        run: |
+          docker load --input /tmp/image.tar
+          docker image ls -a
+      - name: Extract maritime data
+        run: |
+          docker pull islasgeci/maritime_informatics_data:latest
+          docker run --name maritime_data islasgeci/maritime_informatics_data:latest
+          mkdir -p data/external
+          docker cp maritime_data:/data/. data/external
+      - name: 🌎🗺️ Generate Voronoi map
+        run: |
+          docker run --volume $PWD:/workdir \
+            --network host \
+            --add-host=postgis:127.0.0.1 \
+            islasgeci/maritime_informatics:latest make all
+      - name: ⏫🏛️ Upload results
+        uses: actions/upload-artifact@main
+        with:
+          name: voronoi_results
+          path: |
+            reports/figures/*.png
+            data/processed/*.gpkg
+          retention-days: 14
+
+  update-docker:
+    name: Push image to Docker Hub
+    needs: [render-voronoi]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@main
+      - name: Docker log-in
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        run: echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+      - name: Download artifact
+        uses: actions/download-artifact@main
+        with:
+          name: image
+          path: /tmp
+      - name: Load image
+        run: |
+          docker load --input /tmp/image.tar
+      - name: Push latest Docker image to Docker Hub
+        run: docker push islasgeci/maritime_informatics:latest
+      - name: Push SHA tag to Docker Hub
+        run: |
+          docker tag islasgeci/maritime_informatics:latest islasgeci/maritime_informatics:${GITHUB_SHA:0:4}
+          docker push islasgeci/maritime_informatics:${GITHUB_SHA:0:4}
+      - name: Create/Update tag
+        uses: rickstaa/action-create-tag@v1.5.4
+        with:
+          tag: "latest"
+          message: "Latest release"
+          force_push_tag: true
+
+  cleanup-artifacts:
+    name: Delete temporary artifacts 🧹
+    if: always()
+    needs: [update-docker]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Docker image artifact
+        uses: geekyeggo/delete-artifact@main
+        with:
+          name: image

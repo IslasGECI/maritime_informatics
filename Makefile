@@ -37,7 +37,11 @@ init_db:
 	    --command "SELECT COUNT(*) FROM context_data.europe_coastline_polygon;" \
 	    | grep 71514
 
-reports/figures/voronoi_map.png: init_db
+reports/figures/voronoi_map.png: data/processed/brittany_maritime.gpkg
+	mkdir --parents $(@D)
+	bash /workdir/src/plot_voronoi_gmt.sh data/processed/brittany_maritime.gpkg $@
+
+data/processed/brittany_maritime.gpkg: init_db
+	mkdir --parents $(@D)
 	psql --host=postgis --username=postgres --file=/workdir/src/compute_voronoi.sql
-	bash /workdir/src/export_voronoi_gpkg.sh data/processed/maritime_context.gpkg
-	bash /workdir/src/plot_voronoi_gmt.sh data/processed/maritime_context.gpkg $@
+	bash /workdir/src/export_voronoi_gpkg.sh $@
