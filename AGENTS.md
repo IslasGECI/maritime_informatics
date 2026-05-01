@@ -39,6 +39,9 @@ For example:
 - All phony targets must be listed in `.PHONY` (kept alphabetized)
 - File targets use `$@` (output path) and `$(@D)` (parent directory)
 - Create output directories with `mkdir --parents $(@D)`
+- Separate compute, export, and plotting into distinct targets
+- Use intermediate file targets (e.g. `data/processed/%.gpkg`) for dependency tracking
+- Each target does ONE thing: compute, export, or plot
 - Targets compose via dependencies (e.g. `voronoi_map.png: init_db`)
 
 ## Database conventions
@@ -54,6 +57,33 @@ For example:
 
 SQL is the single source of truth for DB schema and operations. Scripts in
 `src/` are auditable, diff-able, and reviewable in PRs.
+
+- **Idempotency**: Scripts should start with `DROP TABLE IF EXISTS <schema>.<table>;`
+  to ensure they can be run multiple times safely without "already exists" errors.
+
+## Coordinate Systems
+
+- **Storage (EPSG:3035)**: Geospatial data is stored in the ETRS89-LAEA projection
+  in PostGIS to ensure the `ST_VoronoiPolygons` calculation is geometrically accurate.
+- **Visualization (EPSG:4326)**: For mapping with GMT, data is reprojected to
+  lat/lon (decimal degrees) during the export to GeoPackage. This simplifies
+  the use of standard Mercator projections (`-JQ`).
+
+## CI/CD "Render" Pipeline
+
+The GitHub Actions workflow follows a **Build -> Render -> Push** lifecycle:
+
+1. **Build**: The Docker image is built and stored as a temporary artifact.
+2. **Render**: The pipeline is verified by running `make all` using a PostGIS
+   service container.
+   - **Data Extraction**: Unlike local development which uses volume mounts,
+     CI uses the `docker cp` pattern to extract data from the
+     `maritime_informatics_data` image into the runner's workspace.
+   - **Verification**: If `make all` fails to generate the map artifact, the
+     workflow stops and the image is NOT pushed to Docker Hub.
+3. **Push**: Verified images are pushed to Docker Hub with `latest` and
+   SHA-based tags.
+4. **Cleanup**: Temporary artifacts (like the exported image) are deleted.
 
 ## psql commands
 
@@ -114,6 +144,20 @@ Make fails if `grep` finds no match — implicit assertion.
 - Prefer long-form flags: `--yes` not `-y`, `--force` not `-f`
 - Multi-line formatting with backslash continuations for readability
 - Explicit > concise
+
+## Shell Script Conventions
+
+- Use `${var:?error}` for mandatory arguments (no defaults)
+- Let the Makefile handle default paths and file management
+- Scripts should fail fast if arguments are missing
+
+## GeoPackage Export Conventions
+
+- Use temporary files for multi-step ogr2ogr operations
+- Reprojection and clipping require two steps:
+  1. Reproject to temp file with `-t_srs`
+  2. Clip and append with `-clipsrc`
+- Clean up temporary files after use
 
 ## Git conventions
 
