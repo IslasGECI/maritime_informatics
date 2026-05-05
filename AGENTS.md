@@ -1,3 +1,12 @@
+## Documentation Strategy
+
+| Filename | Audience | Contents | Domain | Cadence |
+| :--- | :--- | :--- | :--- | :--- |
+| **README.md** | User | **User Manual**: High-level overview of what the project is, its capabilities, and step-by-step instructions for use. | Interface | Low |
+| **AGENTS.md** | Developers | **Developer Manual**: Detailed architectural design, core engineering principles, and operational guidelines. | Architecture | Medium |
+| **DOCS.md** | Developers | **Technical Specs**: Exhaustive description of the current implementation and the internal mechanics of how it works. | Implementation | High |
+| **TODO.md** | Developers | **Backlog**: A structured list of pending tasks, bugs, and roadmap items in a checklist format. | Roadmap | Very High |
+
 ## Compose architecture
 
 Three services in `docker-compose.yml`:
@@ -15,10 +24,12 @@ The `data/external/` directory is ephemeral. It is created and populated by the
 `data` service on every compose run, and removed by `make clean`. Do not commit
 files under `data/processed/` or `data/external/`.
 
-The user starts the container before invoking the agent. Run all commands inside
-the container with:
+Before invoking the agent, the user starts the container with:
 
-`docker exec maritime_informatics_ci <command>`
+- `docker compose run --name maritime_informatics_ci --rm islasgeci`
+
+Then, the agent can run commands inside the container with:
+- `docker exec maritime_informatics_ci <command>`
 
 For example:
 - `docker exec maritime_informatics_ci make init_db`

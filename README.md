@@ -20,17 +20,6 @@ from port locations using PostGIS and renders thematic maps with GMT.
 - **GDAL/OGR** for vector data conversion
 - **Docker** for containerized development
 
-## Prerequisites
-
-- Docker and Docker Compose (for containerized development)
-
-## Usage
-
-```bash
-docker compose run --name maritime_informatics_ci --rm islasgeci
-docker exec maritime_informatics_ci make
-```
-
 ## References
 
 Data sources and methodologies informed by [maritime-informatics.com](http://maritime-informatics.com).
