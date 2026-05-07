@@ -1,12 +1,3 @@
-## Documentation Strategy
-
-| Filename | Audience | Contents | Domain | Cadence |
-| :--- | :--- | :--- | :--- | :--- |
-| **README.md** | User | **User Manual**: High-level overview of what the project is, its capabilities, and step-by-step instructions for use. | Interface | Low |
-| **AGENTS.md** | Developers | **Developer Manual**: Detailed architectural design, core engineering principles, and operational guidelines. | Architecture | Medium |
-| **DOCS.md** | Developers | **Technical Specs**: Exhaustive description of the current implementation and the internal mechanics of how it works. | Implementation | High |
-| **TODO.md** | Developers | **Backlog**: A structured list of pending tasks, bugs, and roadmap items in a checklist format. | Roadmap | Very High |
-
 ## Compose architecture
 
 Three services in `docker-compose.yml`:
@@ -190,3 +181,12 @@ Make fails if `grep` finds no match — implicit assertion.
 
 - No Conventional Commits scopes (`feat:`, `fix:`) — the emoji serves that role
 - Single-line subject, ~20 words max, no trailing period
+
+## Documentation Strategy
+
+| Filename | Audience | Contents | Domain | Cadence |
+| :--- | :--- | :--- | :--- | :--- |
+| **README.md** | User | **User Manual**: High-level overview of what the project is, its capabilities, and step-by-step instructions for use. | Interface | Low |
+| **AGENTS.md** | Developers | **Developer Manual**: Detailed architectural design, core engineering principles, and operational guidelines. | Architecture | Medium |
+| **DOCS.md** | Developers | **Technical Specs**: Exhaustive description of the current implementation and the internal mechanics of how it works. | Implementation | High |
+| **TODO.md** | Developers | **Backlog**: A structured list of pending tasks, bugs, and roadmap items in a checklist format. | Roadmap | Very High |
