@@ -1,0 +1,1 @@
+\copy ais_data.dynamic_ships (sourcemmsi, navigationalstatus, rateofturn, speedoverground, courseoverground, trueheading, lon, lat, t) FROM '/workdir/data/external/nari_dynamic.csv' DELIMITER ',' CSV HEADER;
