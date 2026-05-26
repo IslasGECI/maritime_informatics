@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-05-26
+
 ### Added
 
 - AIS dynamic position data pipeline with `make init_vessel` importing 19
@@ -29,16 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   now uses GMT for plotting instead of R.
 - Composite `make init_db` target removed; use `make init_database`,
   `make init_port`, and `make init_coastline` individually
-
-## [0.1.0] - 2024-10-03
-
-### Added
-
-### Fixed
-
-### Changed
-
-### Removed
 
 [unreleased]: https://github.com/IslasGECI/maritime_informatics/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/IslasGECI/maritime_informatics/releases/tag/v0.1.0
