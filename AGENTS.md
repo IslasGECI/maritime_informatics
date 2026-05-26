@@ -23,7 +23,7 @@ Then, the agent can run commands inside the container with:
 - `docker exec maritime_informatics_ci <command>`
 
 For example:
-- `docker exec maritime_informatics_ci make init_db`
+- `docker exec maritime_informatics_ci make init_port`
 - `docker exec maritime_informatics_ci make reports/figures/voronoi_map.png`
 
 ## Make commands
@@ -33,7 +33,11 @@ For example:
 | `make all` | Build the Voronoi map (default target) |
 | `make clean` | Remove generated data and external archives |
 | `make init` | Configure git inside the container |
-| `make init_db` | Initialize context data schema and import ports + coastline |
+| `make init_database` | Create `context_data` schema only |
+| `make init_port` | Import port shapefile into `context_data.ports` |
+| `make init_coastline` | Import European coastline into `context_data.europe_coastline_polygon` |
+| `make init_vessel` | Import AIS dynamic positions into `ais_data.dynamic_ships` |
+| `make compute_vessel_segments` | Build vessel segments table from AIS positions |
 | `make reports/figures/voronoi_map.png` | Generate Voronoi tessellation map |
 
 ### Make target conventions
@@ -44,7 +48,7 @@ For example:
 - Separate compute, export, and plotting into distinct targets
 - Use intermediate file targets (e.g. `data/processed/%.gpkg`) for dependency tracking
 - Each target does ONE thing: compute, export, or plot
-- Targets compose via dependencies (e.g. `voronoi_map.png: init_db`)
+- Targets compose via dependencies (e.g. `voronoi_map.png: data/processed/brittany_maritime.gpkg`)
 
 ## Database conventions
 
@@ -53,7 +57,8 @@ For example:
 | Schema | Purpose |
 |--------|---------|
 | `context_data` | Geospatial context (ports, coastlines) |
-| `data_analysis` | Derived/analytical outputs (e.g. Voronoi) |
+| `ais_data` | AIS ship records (raw imports) |
+| `data_analysis` | Derived/analytical outputs (e.g. Voronoi, segments) |
 
 ### SQL scripts in `src/`
 
@@ -125,6 +130,19 @@ Make fails if `grep` finds no match — implicit assertion.
   - `-s` set SRID
   - `-I` create spatial index
   - `-D` dump format (faster)
+
+## CSV imports
+
+- Use `\copy` (psql meta-command, not SQL `COPY`) for CSV data; it reads from the client filesystem
+- **Critical:** `\copy` must be on a **single line** — unlike SQL, psql backslash commands cannot span lines
+- Two-phase pattern for CSV data:
+  1. `init_<entity>.sql` — creates schema + table with columns matching the CSV headers
+  2. `import_<entity>.sql` — `\copy` from the CSV file into the matching columns
+- Computed columns (geometry, aliases) are added to the init table and populated via `UPDATE` in the Makefile after import, not in SQL scripts
+- Coordinate transform for AIS dynamic data (lon/lat → EPSG:3035):
+  ```sql
+  ST_Transform(ST_SetSRID(ST_MakePoint(lon, lat), 4326), 3035)
+  ```
 
 ## Plotting with GMT
 

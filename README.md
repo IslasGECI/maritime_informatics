@@ -2,24 +2,50 @@
 
 # Maritime Informatics
 
-![example branch
-parameter](https://github.com/IslasGECI/maritime_informatics/actions/workflows/actions.yml/badge.svg)
+![example branch parameter](https://github.com/IslasGECI/maritime_informatics/actions/workflows/actions.yml/badge.svg)
 ![licencia](https://img.shields.io/github/license/IslasGECI/maritime_informatics)
 ![languages](https://img.shields.io/github/languages/top/IslasGECI/maritime_informatics)
 ![commits](https://img.shields.io/github/commit-activity/y/IslasGECI/maritime_informatics)
 
-## Description
+Analyze vessel traffic around Brittany ports. Generate Voronoi diagrams
+that reveal which port is closest to any point at sea and detect vessel
+stop patterns near mooring areas.
 
-Geospatial pipeline for maritime data analysis. Generates Voronoi tessellations
-from port locations using PostGIS and renders thematic maps with GMT.
+## What you can do
 
-## Key Technologies
+- **See port influence zones**: A map showing which maritime areas are
+  closest to each port in Brittany
+- **Track vessel movements**: Import AIS position data to analyze where
+  ships travel and stop
+- **Detect stop patterns**: Identify areas outside ports where vessels
+  linger, such as mooring zones
 
-- **PostgreSQL/PostGIS** for spatial data and Voronoi computation
-- **GMT** for cartographic rendering
-- **GDAL/OGR** for vector data conversion
-- **Docker** for containerized development
+## How to use it
 
-## References
+```bash
+docker compose run --name maritime_informatics_ci --rm islasgeci
+```
 
-Data sources and methodologies informed by [maritime-informatics.com](http://maritime-informatics.com).
+Then run:
+
+```bash
+# Generate the complete Voronoi map
+docker exec maritime_informatics_ci make all
+
+# Or import vessel data and compute stop segments
+docker exec maritime_informatics_ci make compute_vessel_segments
+```
+
+The output map is saved to `reports/figures/voronoi_map.png`.
+
+## Before you start
+
+- Install Docker and Docker Compose on your machine
+- The `data` service downloads maritime datasets automatically on first
+  run
+
+## Coming soon
+
+- Clustering of vessel stops to identify mooring areas outside ports
+- Docking area detection within ports using stop density analysis
+- Multi-layer thematic maps combining traffic, ports, and protected areas
