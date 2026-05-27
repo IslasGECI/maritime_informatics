@@ -118,6 +118,10 @@ Columns:
 - `speed` — Speed over ground (aliased from speedoverground)
 - `geom3035` — Point geometry in EPSG:3035
 
+Indexes:
+- `idx_dynamic_ships_mmsi_t` on `(mmsi, t)` — supports segments `LEAD` window
+- `idx_dynamic_ships_t` on `(t)` — supports timestamp-range queries
+
 ### data_analysis
 
 Derived analytical outputs.
@@ -125,4 +129,14 @@ Derived analytical outputs.
 | Table | Description | Rows |
 |---|---|---|
 | `data_analysis.ports_voronoi` | Voronoi tessellation polygons around each port | 222 |
-| `data_analysis.segments` | Consecutive position pairs per vessel from AIS data | — |
+| `data_analysis.segments` | Consecutive position pairs per vessel from AIS data | 19030575 |
+
+Columns:
+- `mmsi` — Ship identifier
+- `t1`, `t2` — Starting and ending Unix epoch timestamps
+- `speed1`, `speed2` — Starting and ending speeds (SOG)
+- `p1`, `p2` — Starting and ending points (EPSG:3035)
+- `segment` — Line connecting `p1` to `p2`
+- `distance` — Distance between consecutive points (meters)
+- `duration_s` — Time difference in seconds
+- `speed_m_s` — Speed derived from distance/duration (m/s)

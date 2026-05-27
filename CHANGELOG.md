@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Stamp file targets (`data/processed/.<schema>.<table>.stamp`) for database state tracking,
-  enabling Make to skip already-completed database imports and computations
-- File targets for zip extraction (`data/external/port.shp`, coastline shp, `nari_dynamic.csv`)
-  so Make only unzips when the archive changes
+- Stamp file targets (`data/processed/.<schema>.<table>.stamp`) for database state
+  tracking, enabling Make to skip already-completed database imports and computations
+- File targets for zip extraction (`data/external/port.shp`, `nari_dynamic.csv`)
+  so Make only unzips when the target file is missing
 - Index `idx_dynamic_ships_t` on `ais_data.dynamic_ships(t)` for timestamp-range queries
 - Row count assertions on `data_analysis.segments` (19030575 rows)
 
@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `init_port`, `init_coastline`, `init_vessel`, `compute_vessel_segments`, and
   `init_database` replaced by stamp-based file targets
+- Extraction file targets no longer depend on the zip archive as a Make prerequisite —
+  the recipe runs only when the target file does not exist; `touch $@` added after
+  extraction to prevent timestamp-triggered rebuilds
+- Coasline extraction moved inline into the stamp recipe (the shapefile path
+  contains spaces and parentheses, which break Make automatic variables)
 - `idx_dynamic_ships_mmsi_t` moved from `compute_vessel_segments.sql` into
   `init_ais_dynamic_ships.sql` (created table-side, not query-side)
 - `compute_vessel_segments.sql` now uses `DROP TABLE IF EXISTS ... CASCADE` for
