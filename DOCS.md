@@ -20,12 +20,6 @@ Extract port shapefile from zip.
 
 - Data source: `data/external/[C1] Ports of Brittany.zip`
 
-### make data/external/Europe\ Coastline\ \(Polygone\).shp
-
-Extract coastline shapefile from zip.
-
-- Data source: `data/external/[C2] European Coastline.zip`
-
 ### make data/external/nari_dynamic.csv
 
 Extract AIS CSV from zip.
@@ -45,7 +39,8 @@ Import the Brittany ports shapefile into `context_data.ports`.
 
 Import the European coastline polygon shapefile into `context_data.europe_coastline_polygon`.
 
-- Dependencies: `data/external/Europe Coastline (Polygone).shp`
+- Dependencies: none (extracts from zip inline)
+- Data source: `data/external/[C2] European Coastline.zip`
 - Table: `context_data.europe_coastline_polygon`
 - Rows expected: 71514
 

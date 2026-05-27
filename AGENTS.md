@@ -34,7 +34,6 @@ For example:
 | `make clean` | Remove generated data and external archives |
 | `make init` | Configure git inside the container |
 | `make data/external/port.shp` | Extract port shapefile from zip |
-| `make data/external/Europe\ Coastline\ \(Polygone\).shp` | Extract coastline shapefile from zip |
 | `make data/external/nari_dynamic.csv` | Extract AIS CSV from zip |
 | `make data/processed/.context_data.ports.stamp` | Import port shapefile into `context_data.ports` |
 | `make data/processed/.context_data.europe_coastline_polygon.stamp` | Import European coastline into `context_data.europe_coastline_polygon` |

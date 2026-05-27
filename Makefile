@@ -13,14 +13,13 @@ init:
 
 # === INPUT FILE TARGETS (extract from zips) ===
 
-data/external/port.shp: data/external/[C1]\ Ports\ of\ Brittany.zip
-	unzip -o "$<" "port.*" -d $(@D)
+data/external/port.shp:
+	unzip -o "data/external/[C1] Ports of Brittany.zip" "port.*" -d $(@D)
+	touch $@
 
-data/external/Europe\ Coastline\ \(Polygone\).shp: data/external/[C2]\ European\ Coastline.zip
-	unzip -o "$<" "Europe Coastline (Polygone).*" -d $(@D)
-
-data/external/nari_dynamic.csv: data/external/[P1]\ AIS\ Data.zip
-	unzip -o "$<" "nari_dynamic.csv" -d $(@D)
+data/external/nari_dynamic.csv:
+	unzip -o "data/external/[P1] AIS Data.zip" "nari_dynamic.csv" -d $(@D)
+	touch $@
 
 # === DATABASE STAMP TARGETS ===
 
@@ -36,10 +35,11 @@ data/processed/.context_data.ports.stamp: data/external/port.shp
 	mkdir --parents $(@D)
 	touch $@
 
-data/processed/.context_data.europe_coastline_polygon.stamp: data/external/Europe\ Coastline\ \(Polygone\).shp
+data/processed/.context_data.europe_coastline_polygon.stamp:
 	psql --host=postgis --username=postgres --command "CREATE SCHEMA IF NOT EXISTS context_data;"
 	psql --host=postgis --username=postgres --command "DROP TABLE IF EXISTS context_data.europe_coastline_polygon CASCADE;"
-	shp2pgsql -s 3035 -I -D "$<" context_data.europe_coastline_polygon > /tmp/europe_coastline_polygon.sql
+	unzip -o "data/external/[C2] European Coastline.zip" "Europe Coastline (Polygone).*" -d data/external/
+	shp2pgsql -s 3035 -I -D "data/external/Europe Coastline (Polygone).shp" context_data.europe_coastline_polygon > /tmp/europe_coastline_polygon.sql
 	psql --host=postgis --username=postgres --file=/tmp/europe_coastline_polygon.sql
 	psql --host=postgis --username=postgres \
 	    --command "SELECT COUNT(*) FROM context_data.europe_coastline_polygon;" \
