@@ -18,3 +18,21 @@ CREATE TABLE data_analysis.stops AS
         ORDER BY t_end
         LIMIT 1 -- select only the first stop end
     ) AS q2 ON (true);
+
+ALTER TABLE data_analysis.stops
+ADD COLUMN centr3035 geometry(Point,3035);
+
+ALTER TABLE data_analysis.stops
+ADD COLUMN nb_pos integer;
+
+-- compute the centroid and number of positions
+UPDATE data_analysis.stops
+SET (centr3035, nb_pos) = (
+    SELECT
+        st_centroid(st_collect(geom3035)), -- centroid of a multipoint
+        count(*) AS nb -- number of points
+    FROM ais_data.dynamic_ships
+    WHERE mmsi = stops.mmsi
+      AND t >= stops.t_begin
+      AND t <= stops.t_end
+); -- timestamp range

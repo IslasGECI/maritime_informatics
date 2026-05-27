@@ -80,6 +80,7 @@ Build the consolidated stops table by coupling stop_begin and stop_end events pe
 - Table created: `data_analysis.stops`
 - Uses an inner lateral join to pair each stop-start with the chronologically first matching stop-end for the same vessel
 - Each row represents a complete stop event with start time, end time, and duration
+- Enriches each stop with the centroid geometry and position count from the raw AIS data
 
 ### make data/processed/.data_analysis.ports_voronoi.stamp
 
@@ -182,3 +183,5 @@ Columns (`data_analysis.stops`):
 - `t_begin` — Start of the stop event (Unix epoch seconds)
 - `t_end` — End of the stop event (Unix epoch seconds)
 - `duration_s` — Stop duration in seconds
+- `centr3035` — Centroid point (EPSG:3035) of all AIS positions collected during the stop
+- `nb_pos` — Number of AIS position reports within the stop's timestamp range

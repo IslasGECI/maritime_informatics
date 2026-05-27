@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `(mmsi, t_begin)` and `(mmsi, t_end)` respectively
 - Consolidated stops table (`data_analysis.stops`) built by coupling stop_begin and
   stop_end events per vessel via lateral join, with event duration
+- Enriched stops with centroid geometry (`centr3035`) and position count (`nb_pos`)
+  computed from raw AIS data within each stop's timestamp range
 
 ### Changed
 
