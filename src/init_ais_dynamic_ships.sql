@@ -16,3 +16,11 @@ CREATE TABLE ais_data.dynamic_ships (
     geom3035 geometry(Point, 3035), -- Geographic position in ETRS89-LAEA projection
     CONSTRAINT dynamic_ships_pkey PRIMARY KEY (id) -- Primary Key
 );
+
+CREATE INDEX IF NOT EXISTS idx_dynamic_ships_mmsi_t
+ON ais_data.dynamic_ships
+USING btree (mmsi, t);
+
+CREATE INDEX IF NOT EXISTS idx_dynamic_ships_t
+ON ais_data.dynamic_ships
+USING btree (t);

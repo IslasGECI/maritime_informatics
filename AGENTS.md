@@ -23,7 +23,7 @@ Then, the agent can run commands inside the container with:
 - `docker exec maritime_informatics_ci <command>`
 
 For example:
-- `docker exec maritime_informatics_ci make init_port`
+- `docker exec maritime_informatics_ci make data/processed/.context_data.ports.stamp`
 - `docker exec maritime_informatics_ci make reports/figures/voronoi_map.png`
 
 ## Make commands
@@ -33,21 +33,27 @@ For example:
 | `make all` | Build the Voronoi map (default target) |
 | `make clean` | Remove generated data and external archives |
 | `make init` | Configure git inside the container |
-| `make init_database` | Create `context_data` schema only |
-| `make init_port` | Import port shapefile into `context_data.ports` |
-| `make init_coastline` | Import European coastline into `context_data.europe_coastline_polygon` |
-| `make init_vessel` | Import AIS dynamic positions into `ais_data.dynamic_ships` |
-| `make compute_vessel_segments` | Build vessel segments table from AIS positions |
+| `make data/external/port.shp` | Extract port shapefile from zip |
+| `make data/external/Europe\ Coastline\ \(Polygone\).shp` | Extract coastline shapefile from zip |
+| `make data/external/nari_dynamic.csv` | Extract AIS CSV from zip |
+| `make data/processed/.context_data.ports.stamp` | Import port shapefile into `context_data.ports` |
+| `make data/processed/.context_data.europe_coastline_polygon.stamp` | Import European coastline into `context_data.europe_coastline_polygon` |
+| `make data/processed/.ais_data.dynamic_ships.stamp` | Import AIS dynamic positions into `ais_data.dynamic_ships` |
+| `make data/processed/.data_analysis.segments.stamp` | Build vessel segments table from AIS positions |
+| `make data/processed/.data_analysis.ports_voronoi.stamp` | Compute Voronoi polygons from port locations |
+| `make data/processed/brittany_maritime.gpkg` | Export all layers to GeoPackage |
 | `make reports/figures/voronoi_map.png` | Generate Voronoi tessellation map |
 
 ### Make target conventions
 
 - All phony targets must be listed in `.PHONY` (kept alphabetized)
 - File targets use `$@` (output path) and `$(@D)` (parent directory)
+- Database tables use stamp files (`data/processed/.<schema>.<table>.stamp`) as proxies since Make cannot track database state natively
+- Each stamp recipe creates its own schema with `CREATE SCHEMA IF NOT EXISTS` and is self-contained
+- Each stamp recipe asserts row count with `psql ... | grep <expected_number>` for verification
 - Create output directories with `mkdir --parents $(@D)`
-- Separate compute, export, and plotting into distinct targets
-- Use intermediate file targets (e.g. `data/processed/%.gpkg`) for dependency tracking
-- Each target does ONE thing: compute, export, or plot
+- Separate extraction, import, compute, export, and plotting into distinct targets
+- Each target does ONE thing
 - Targets compose via dependencies (e.g. `voronoi_map.png: data/processed/brittany_maritime.gpkg`)
 
 ## Database conventions

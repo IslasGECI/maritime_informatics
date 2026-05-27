@@ -14,48 +14,72 @@ Remove all generated data and external archives.
 
 - Removes: `data/processed/` and `data/external/`
 
-### make init_database
+### make data/external/port.shp
 
-Create the `context_data` schema if it does not exist.
+Extract port shapefile from zip.
 
-- Notes: Safe to run multiple times. Does not import any data.
+- Data source: `data/external/[C1] Ports of Brittany.zip`
 
-### make init_port
+### make data/external/Europe\ Coastline\ \(Polygone\).shp
+
+Extract coastline shapefile from zip.
+
+- Data source: `data/external/[C2] European Coastline.zip`
+
+### make data/external/nari_dynamic.csv
+
+Extract AIS CSV from zip.
+
+- Data source: `data/external/[P1] AIS Data.zip`
+
+### make data/processed/.context_data.ports.stamp
 
 Import the Brittany ports shapefile into `context_data.ports`.
 
-- Dependencies: `init_database`
-- Data source: `data/external/[C1] Ports of Brittany.zip`
+- Dependencies: `data/external/port.shp`
 - Table: `context_data.ports`
 - Rows expected: 222
 - Notes: The shapefile `.prj` file is mislabeled as WGS84 (EPSG:4326). Actual coordinates are EPSG:3035. Import uses SRID 3035.
 
-### make init_coastline
+### make data/processed/.context_data.europe_coastline_polygon.stamp
 
 Import the European coastline polygon shapefile into `context_data.europe_coastline_polygon`.
 
-- Dependencies: `init_database`
-- Data source: `data/external/[C2] European Coastline.zip`
+- Dependencies: `data/external/Europe Coastline (Polygone).shp`
 - Table: `context_data.europe_coastline_polygon`
 - Rows expected: 71514
 
-### make init_vessel
+### make data/processed/.ais_data.dynamic_ships.stamp
 
 Import AIS dynamic vessel position data into `ais_data.dynamic_ships`.
 
-- Dependencies: none
-- Data source: `data/external/[P1] AIS Data.zip` → `nari_dynamic.csv`
+- Dependencies: `data/external/nari_dynamic.csv`
 - Table: `ais_data.dynamic_ships`
 - Rows expected: 19035630
 - Notes: Raw CSV lon/lat (EPSG:4326) coordinates are transformed to EPSG:3035 geometry during import. Alias columns (`mmsi`, `speed`) are populated from CSV originals.
 
-### make compute_vessel_segments
+### make data/processed/.data_analysis.segments.stamp
 
 Build the vessel segments table from consecutive AIS position pairs.
 
-- Dependencies: `init_vessel`
+- Dependencies: `data/processed/.ais_data.dynamic_ships.stamp`
 - Table created: `data_analysis.segments`
+- Rows expected: 19030575
 - Uses `LEAD` window function ordered by `(mmsi, t)` to pair consecutive positions per vessel
+
+### make data/processed/.data_analysis.ports_voronoi.stamp
+
+Compute Voronoi tessellation polygons from port locations.
+
+- Dependencies: `data/processed/.context_data.ports.stamp`
+- Table created: `data_analysis.ports_voronoi`
+
+### make data/processed/brittany_maritime.gpkg
+
+Export all layers to a single GeoPackage.
+
+- Dependencies: `data/processed/.data_analysis.ports_voronoi.stamp`, `data/processed/.context_data.europe_coastline_polygon.stamp`
+- Reprojects coastline to EPSG:4326, clips to Brittany bounds
 
 ### make reports/figures/voronoi_map.png
 

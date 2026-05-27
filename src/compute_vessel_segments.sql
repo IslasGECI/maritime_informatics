@@ -1,8 +1,6 @@
 CREATE SCHEMA IF NOT EXISTS data_analysis;
 
-CREATE INDEX idx_dynamic_ships_mmsi_t
-ON ais_data.dynamic_ships
-USING btree (mmsi, t);
+DROP TABLE IF EXISTS data_analysis.segments CASCADE;
 
 CREATE TABLE data_analysis.segments AS
     SELECT mmsi, -- ship identifier

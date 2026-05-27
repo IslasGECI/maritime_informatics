@@ -33,7 +33,7 @@ Then run:
 docker exec maritime_informatics_ci make all
 
 # Or import vessel data and compute stop segments
-docker exec maritime_informatics_ci make compute_vessel_segments
+docker exec maritime_informatics_ci make data/processed/.data_analysis.segments.stamp
 ```
 
 The output map is saved to `reports/figures/voronoi_map.png`.
