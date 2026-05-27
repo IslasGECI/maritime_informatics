@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   stop_end events per vessel via lateral join, with event duration
 - Enriched stops with centroid geometry (`centr3035`) and position count (`nb_pos`)
   computed from raw AIS data within each stop's timestamp range
+- Enriched stops with average and maximum distance from centroid (`avg_dist_centroid`,
+  `max_dist_centroid`) as dispersion indicators for characterising stop nature
 
 ### Changed
 

@@ -185,3 +185,5 @@ Columns (`data_analysis.stops`):
 - `duration_s` — Stop duration in seconds
 - `centr3035` — Centroid point (EPSG:3035) of all AIS positions collected during the stop
 - `nb_pos` — Number of AIS position reports within the stop's timestamp range
+- `avg_dist_centroid` — Average distance (meters) of AIS positions from the stop centroid, indicating spatial dispersion
+- `max_dist_centroid` — Maximum distance (meters) of any AIS position from the stop centroid

@@ -36,3 +36,22 @@ SET (centr3035, nb_pos) = (
       AND t >= stops.t_begin
       AND t <= stops.t_end
 ); -- timestamp range
+
+ALTER TABLE data_analysis.stops
+ADD COLUMN avg_dist_centroid numeric;
+
+ALTER TABLE data_analysis.stops
+ADD COLUMN max_dist_centroid numeric;
+
+-- compute the distance of the position cluster to the centroid
+UPDATE data_analysis.stops
+SET (avg_dist_centroid, max_dist_centroid) = (
+    SELECT avg(d), max(d)
+    FROM (
+        SELECT st_distance(centr3035, geom3035) AS d -- distance to centroid
+        FROM ais_data.dynamic_ships
+        WHERE mmsi = stops.mmsi
+          AND t >= stops.t_begin
+          AND t <= stops.t_end -- timestamp range
+    ) AS q1
+);
