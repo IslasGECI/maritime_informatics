@@ -67,6 +67,11 @@ data/processed/.data_analysis.segments.stamp: data/processed/.ais_data.dynamic_s
 	mkdir --parents $(@D)
 	touch $@
 
+data/processed/.data_analysis.stop_tables.stamp: data/processed/.data_analysis.segments.stamp
+	psql --host=postgis --username=postgres --file=/workdir/src/compute_stop_tables.sql
+	mkdir --parents $(@D)
+	touch $@
+
 data/processed/.data_analysis.ports_voronoi.stamp: data/processed/.context_data.ports.stamp
 	psql --host=postgis --username=postgres --file=/workdir/src/compute_voronoi.sql
 	mkdir --parents $(@D)

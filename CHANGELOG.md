@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   so Make only unzips when the target file is missing
 - Index `idx_dynamic_ships_t` on `ais_data.dynamic_ships(t)` for timestamp-range queries
 - Row count assertions on `data_analysis.segments` (19030575 rows)
+- Stop-detection auxiliary tables (`data_analysis.stop_begin`, `data_analysis.stop_end`)
+  computed from vessel segments using a 0.1 kn speed threshold, with indexes on
+  `(mmsi, t_begin)` and `(mmsi, t_end)` respectively
 
 ### Changed
 

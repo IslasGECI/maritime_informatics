@@ -34,6 +34,7 @@ Then run commands inside the container:
 | `make data/processed/.context_data.europe_coastline_polygon.stamp` | Import European coastline into `context_data.europe_coastline_polygon` |
 | `make data/processed/.ais_data.dynamic_ships.stamp` | Import AIS dynamic positions into `ais_data.dynamic_ships` |
 | `make data/processed/.data_analysis.segments.stamp` | Build vessel segments table from AIS positions |
+| `make data/processed/.data_analysis.stop_tables.stamp` | Build stop-detection auxiliary tables from vessel segments |
 | `make data/processed/.data_analysis.ports_voronoi.stamp` | Compute Voronoi polygons from port locations |
 | `make data/processed/brittany_maritime.gpkg` | Export all layers to GeoPackage |
 | `make reports/figures/voronoi_map.png` | Generate Voronoi tessellation map |

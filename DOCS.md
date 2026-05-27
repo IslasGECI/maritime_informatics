@@ -62,6 +62,16 @@ Build the vessel segments table from consecutive AIS position pairs.
 - Rows expected: 19030575
 - Uses `LEAD` window function ordered by `(mmsi, t)` to pair consecutive positions per vessel
 
+### make data/processed/.data_analysis.stop_tables.stamp
+
+Build auxiliary stop-detection tables (`stop_begin`, `stop_end`) from vessel segments.
+
+- Dependencies: `data/processed/.data_analysis.segments.stamp`
+- Tables created: `data_analysis.stop_begin`, `data_analysis.stop_end`
+- Uses a speed threshold of 0.1 kn to detect transitions between moving and stopped states
+- `stop_begin` captures segments that go from moving (speed1 > 0.1) to stopped (speed2 ≤ 0.1)
+- `stop_end` captures segments that go from stopped (speed1 ≤ 0.1) to moving (speed2 > 0.1)
+
 ### make data/processed/.data_analysis.ports_voronoi.stamp
 
 Compute Voronoi tessellation polygons from port locations.
@@ -127,11 +137,13 @@ Indexes:
 Derived analytical outputs.
 
 | Table | Description | Rows |
-|---|---|---|
+|---|---|---|---|
 | `data_analysis.ports_voronoi` | Voronoi tessellation polygons around each port | 222 |
 | `data_analysis.segments` | Consecutive position pairs per vessel from AIS data | 19030575 |
+| `data_analysis.stop_begin` | Potential stop-start positions: segments transitioning from moving to stopped (speed1 > 0.1, speed2 ≤ 0.1) | — |
+| `data_analysis.stop_end` | Potential stop-end positions: segments transitioning from stopped to moving (speed1 ≤ 0.1, speed2 > 0.1) | — |
 
-Columns:
+Columns (`data_analysis.segments`):
 - `mmsi` — Ship identifier
 - `t1`, `t2` — Starting and ending Unix epoch timestamps
 - `speed1`, `speed2` — Starting and ending speeds (SOG)
@@ -140,3 +152,17 @@ Columns:
 - `distance` — Distance between consecutive points (meters)
 - `duration_s` — Time difference in seconds
 - `speed_m_s` — Speed derived from distance/duration (m/s)
+
+Columns (`data_analysis.stop_begin`):
+- `mmsi` — Ship identifier
+- `t_begin` — Timestamp of the first steady (stopped) position after deceleration
+
+Indexes:
+- `idx_stop_begin_mmsi_t` on `(mmsi, t_begin)` — supports stop-start lookups per vessel
+
+Columns (`data_analysis.stop_end`):
+- `mmsi` — Ship identifier
+- `t_end` — Timestamp of the last steady (stopped) position before acceleration
+
+Indexes:
+- `idx_stop_end_mmsi_t` on `(mmsi, t_end)` — supports stop-end lookups per vessel
