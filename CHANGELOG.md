@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Stop-detection auxiliary tables (`data_analysis.stop_begin`, `data_analysis.stop_end`)
   computed from vessel segments using a 0.1 kn speed threshold, with indexes on
   `(mmsi, t_begin)` and `(mmsi, t_end)` respectively
+- Consolidated stops table (`data_analysis.stops`) built by coupling stop_begin and
+  stop_end events per vessel via lateral join, with event duration
 
 ### Changed
 

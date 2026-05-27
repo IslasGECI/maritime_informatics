@@ -72,6 +72,15 @@ Build auxiliary stop-detection tables (`stop_begin`, `stop_end`) from vessel seg
 - `stop_begin` captures segments that go from moving (speed1 > 0.1) to stopped (speed2 ≤ 0.1)
 - `stop_end` captures segments that go from stopped (speed1 ≤ 0.1) to moving (speed2 > 0.1)
 
+### make data/processed/.data_analysis.stops.stamp
+
+Build the consolidated stops table by coupling stop_begin and stop_end events per vessel.
+
+- Dependencies: `data/processed/.data_analysis.stop_tables.stamp`
+- Table created: `data_analysis.stops`
+- Uses an inner lateral join to pair each stop-start with the chronologically first matching stop-end for the same vessel
+- Each row represents a complete stop event with start time, end time, and duration
+
 ### make data/processed/.data_analysis.ports_voronoi.stamp
 
 Compute Voronoi tessellation polygons from port locations.
@@ -142,6 +151,7 @@ Derived analytical outputs.
 | `data_analysis.segments` | Consecutive position pairs per vessel from AIS data | 19030575 |
 | `data_analysis.stop_begin` | Potential stop-start positions: segments transitioning from moving to stopped (speed1 > 0.1, speed2 ≤ 0.1) | — |
 | `data_analysis.stop_end` | Potential stop-end positions: segments transitioning from stopped to moving (speed1 ≤ 0.1, speed2 > 0.1) | — |
+| `data_analysis.stops` | Consolidated stop events: stop_begin paired with the chronologically first matching stop_end per vessel | — |
 
 Columns (`data_analysis.segments`):
 - `mmsi` — Ship identifier
@@ -166,3 +176,9 @@ Columns (`data_analysis.stop_end`):
 
 Indexes:
 - `idx_stop_end_mmsi_t` on `(mmsi, t_end)` — supports stop-end lookups per vessel
+
+Columns (`data_analysis.stops`):
+- `mmsi` — Ship identifier
+- `t_begin` — Start of the stop event (Unix epoch seconds)
+- `t_end` — End of the stop event (Unix epoch seconds)
+- `duration_s` — Stop duration in seconds
