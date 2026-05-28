@@ -22,16 +22,13 @@ ogr2ogr -f GPKG \
     "$OUTPUT" \
     "$POSTGRES"
 
-# Coastline: reproject to lat/lon, clip to Brest bounds
-TMP_GPKG=$(mktemp).gpkg
-ogr2ogr -f GPKG -t_srs EPSG:4326 "$TMP_GPKG" "$POSTGRES" context_data.europe_coastline_polygon
+# Coastline: clip OSM land polygons to Brest bounds
 ogr2ogr -f GPKG \
     -update \
     -append \
     -nln context_data.europe_coastline_polygon \
     -clipsrc -4.5 48.371667 -4.425 48.400556 \
     "$OUTPUT" \
-    "$TMP_GPKG"
-rm -f "$TMP_GPKG"
+    "/workdir/data/processed/osm_land_polygons/land_polygons.shp"
 
 echo "✓ Exported to $OUTPUT"

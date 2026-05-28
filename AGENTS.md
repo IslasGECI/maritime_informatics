@@ -31,7 +31,8 @@ Then run commands inside the container:
 | `make data/external/port.shp` | Extract port shapefile from zip |
 | `make data/external/nari_dynamic.csv` | Extract AIS CSV from zip |
 | `make data/processed/.context_data.ports.stamp` | Import port shapefile into `context_data.ports` |
-| `make data/processed/.context_data.europe_coastline_polygon.stamp` | Import European coastline into `context_data.europe_coastline_polygon` |
+| `make data/external/land-polygons-split-4326.zip` | Download OSM land polygons from FOSSGIS data server |
+| `make data/processed/.osm_land_polygons.ready.stamp` | Extract OSM land polygons shapefile from archive |
 | `make data/processed/.ais_data.dynamic_ships.stamp` | Import AIS dynamic positions into `ais_data.dynamic_ships` |
 | `make data/processed/.data_analysis.segments.stamp` | Build vessel segments table from AIS positions |
 | `make data/processed/.data_analysis.stop_tables.stamp` | Build stop-detection auxiliary tables from vessel segments |
@@ -70,7 +71,7 @@ When a filename contains such characters:
 - Hardcode the path in the recipe instead of using `$<` or `$@`
 - For extraction that produces a file with special characters, bundle the
   extraction inline in the stamp recipe rather than creating a separate
-  file target (e.g. the coastline shapefile).
+  file target.
 
 ## Database conventions
 

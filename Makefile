@@ -22,6 +22,9 @@ data/external/nari_dynamic.csv:
 	unzip -o "data/external/[P1] AIS Data.zip" "nari_dynamic.csv" -d $(@D)
 	touch $@
 
+data/external/land-polygons-split-4326.zip:
+	curl -o $@ https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip
+
 # === DATABASE STAMP TARGETS ===
 
 data/processed/.context_data.ports.stamp: data/external/port.shp
@@ -36,16 +39,8 @@ data/processed/.context_data.ports.stamp: data/external/port.shp
 	mkdir --parents $(@D)
 	touch $@
 
-data/processed/.context_data.europe_coastline_polygon.stamp:
-	psql --host=postgis --username=postgres --command "CREATE SCHEMA IF NOT EXISTS context_data;"
-	psql --host=postgis --username=postgres --command "DROP TABLE IF EXISTS context_data.europe_coastline_polygon CASCADE;"
-	unzip -o "data/external/[C2] European Coastline.zip" "Europe Coastline (Polygone).*" -d data/external/
-	shp2pgsql -s 3035 -I -D "data/external/Europe Coastline (Polygone).shp" context_data.europe_coastline_polygon > /tmp/europe_coastline_polygon.sql
-	psql --host=postgis --username=postgres --file=/tmp/europe_coastline_polygon.sql
-	psql --host=postgis --username=postgres \
-	    --command "SELECT COUNT(*) FROM context_data.europe_coastline_polygon;" \
-	    | grep 71514
-	mkdir --parents $(@D)
+data/processed/.osm_land_polygons.ready.stamp: data/external/land-polygons-split-4326.zip
+	unzip -o -j "$<" "land-polygons-split-4326/land_polygons.*" -d data/processed/osm_land_polygons
 	touch $@
 
 data/processed/.ais_data.dynamic_ships.stamp: data/external/nari_dynamic.csv
@@ -106,7 +101,7 @@ data/processed/.data_analysis.ports_voronoi.stamp: data/processed/.context_data.
 
 data/processed/brittany_maritime.gpkg: \
     data/processed/.data_analysis.ports_voronoi.stamp \
-    data/processed/.context_data.europe_coastline_polygon.stamp
+    data/processed/.osm_land_polygons.ready.stamp
 	mkdir --parents $(@D)
 	bash /workdir/src/export_voronoi_gpkg.sh $@
 
@@ -116,7 +111,7 @@ reports/figures/voronoi_map.png: data/processed/brittany_maritime.gpkg
 
 data/processed/cluster_map.gpkg: \
     data/processed/.data_analysis.cluster_stops.stamp \
-    data/processed/.context_data.europe_coastline_polygon.stamp
+    data/processed/.osm_land_polygons.ready.stamp
 	mkdir --parents $(@D)
 	bash /workdir/src/export_cluster_gpkg.sh $@
 
@@ -126,7 +121,7 @@ reports/figures/cluster_map.png: data/processed/cluster_map.gpkg
 
 data/processed/brest_hulls.gpkg: \
     data/processed/.data_analysis.clusters_stops_hulls.stamp \
-    data/processed/.context_data.europe_coastline_polygon.stamp
+    data/processed/.osm_land_polygons.ready.stamp
 	mkdir --parents $(@D)
 	bash /workdir/src/export_brest_hulls.sh $@
 

@@ -35,14 +35,21 @@ Import the Brittany ports shapefile into `context_data.ports`.
 - Rows expected: 222
 - Notes: The shapefile `.prj` file is mislabeled as WGS84 (EPSG:4326). Actual coordinates are EPSG:3035. Import uses SRID 3035.
 
-### make data/processed/.context_data.europe_coastline_polygon.stamp
+### make data/external/land-polygons-split-4326.zip
 
-Import the European coastline polygon shapefile into `context_data.europe_coastline_polygon`.
+Download the OSM land polygons shapefile (split, WGS84) from the FOSSGIS data server.
 
-- Dependencies: none (extracts from zip inline)
-- Data source: `data/external/[C2] European Coastline.zip`
-- Table: `context_data.europe_coastline_polygon`
-- Rows expected: 71514
+- Dependencies: none
+- Data source: `https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip`
+- Notes: ~630 MB download. Uses OSM coastline data processed by the German FOSSGIS society.
+
+### make data/processed/.osm_land_polygons.ready.stamp
+
+Extract the OSM land polygons shapefile from the downloaded archive.
+
+- Dependencies: `data/external/land-polygons-split-4326.zip`
+- Data source: OSM-derived land polygons at `/workdir/data/processed/osm_land_polygons/land_polygons.shp`
+- Notes: Native EPSG:4326, no reprojection needed. Replaces the former European coastline shapefile for all maps.
 
 ### make data/processed/.ais_data.dynamic_ships.stamp
 
@@ -103,8 +110,8 @@ Compute Voronoi tessellation polygons from port locations.
 
 Export all layers to a single GeoPackage.
 
-- Dependencies: `data/processed/.data_analysis.ports_voronoi.stamp`, `data/processed/.context_data.europe_coastline_polygon.stamp`
-- Reprojects coastline to EPSG:4326, clips to Brittany bounds
+- Dependencies: `data/processed/.data_analysis.ports_voronoi.stamp`, `data/processed/.osm_land_polygons.ready.stamp`
+- Clips OSM land polygons to Brittany bounds
 
 ### make reports/figures/voronoi_map.png
 
@@ -118,9 +125,9 @@ Render the Voronoi tessellation map to a PNG image.
 
 Export cluster stops and coastline to a standalone GeoPackage for the Port of Brest area.
 
-- Dependencies: `data/processed/.data_analysis.cluster_stops.stamp`, `data/processed/.context_data.europe_coastline_polygon.stamp`
-- Layers: cluster stops (with `color_id = cid % 25`), noise points, coastline clipped to Brest bounds
-- All geometries reprojected to EPSG:4326
+- Dependencies: `data/processed/.data_analysis.cluster_stops.stamp`, `data/processed/.osm_land_polygons.ready.stamp`
+- Layers: cluster stops (with `z = cid % 25`), noise points, coastline clipped to Brest bounds
+- Coastline sourced directly from OSM land polygons shapefile (EPSG:4326)
 
 ### make reports/figures/cluster_map.png
 
@@ -137,9 +144,8 @@ Render the cluster stops map to a PNG image.
 Geospatial context data for the Brittany region.
 
 | Table | Description | Rows |
-|---|---|---|
+|---|---|---|---|
 | `context_data.ports` | Brittany port locations (MultiPoint, EPSG:3035) | 222 |
-| `context_data.europe_coastline_polygon` | European coastline polygon (MultiPolygon, EPSG:3035) | 71514 |
 
 ### ais_data
 
