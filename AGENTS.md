@@ -36,6 +36,7 @@ Then run commands inside the container:
 | `make data/processed/.data_analysis.segments.stamp` | Build vessel segments table from AIS positions |
 | `make data/processed/.data_analysis.stop_tables.stamp` | Build stop-detection auxiliary tables from vessel segments |
 | `make data/processed/.data_analysis.stops.stamp` | Build consolidated stops table from stop_begin and stop_end |
+| `make data/processed/.data_analysis.cluster_stops.stamp` | Cluster stop centroids with DBSCAN to detect stationary areas |
 | `make data/processed/.data_analysis.ports_voronoi.stamp` | Compute Voronoi polygons from port locations |
 | `make data/processed/brittany_maritime.gpkg` | Export all layers to GeoPackage |
 | `make reports/figures/voronoi_map.png` | Generate Voronoi tessellation map |

@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   computed from raw AIS data within each stop's timestamp range
 - Enriched stops with average and maximum distance from centroid (`avg_dist_centroid`,
   `max_dist_centroid`) as dispersion indicators for characterising stop nature
+- DBSCAN clustering of stop centroids into `data_analysis.cluster_stops` with
+  eps=50 m, minpoints=5, yielding 353 stationary-area clusters
 
 ### Changed
 

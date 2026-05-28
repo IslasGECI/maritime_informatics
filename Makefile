@@ -80,6 +80,17 @@ data/processed/.data_analysis.stops.stamp: data/processed/.data_analysis.stop_ta
 	mkdir --parents $(@D)
 	touch $@
 
+data/processed/.data_analysis.cluster_stops.stamp: data/processed/.data_analysis.stops.stamp
+	psql --host=postgis --username=postgres --file=/workdir/src/compute_cluster_stops.sql
+	psql --host=postgis --username=postgres \
+	    --command "SELECT count(DISTINCT cid) FROM data_analysis.cluster_stops WHERE cid IS NOT NULL;" \
+	    | grep 353
+	psql --host=postgis --username=postgres \
+	    --command "SELECT count(*) FROM data_analysis.cluster_stops;" \
+	    | grep 55304
+	mkdir --parents $(@D)
+	touch $@
+
 data/processed/.data_analysis.ports_voronoi.stamp: data/processed/.context_data.ports.stamp
 	psql --host=postgis --username=postgres --file=/workdir/src/compute_voronoi.sql
 	mkdir --parents $(@D)

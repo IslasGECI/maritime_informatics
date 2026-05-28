@@ -82,6 +82,16 @@ Build the consolidated stops table by coupling stop_begin and stop_end events pe
 - Each row represents a complete stop event with start time, end time, and duration
 - Enriches each stop with the centroid geometry and position count from the raw AIS data
 
+### make data/processed/.data_analysis.cluster_stops.stamp
+
+Cluster stop centroids using DBSCAN to detect frequent stationary areas.
+
+- Dependencies: `data/processed/.data_analysis.stops.stamp`
+- Table created: `data_analysis.cluster_stops`
+- Uses `ST_ClusterDBSCAN` with `eps := 50` metres, `minpoints := 5`, considering only stops lasting at least one minute
+- Each row is a stop event with an assigned cluster ID (`cid`); noise points have `cid IS NULL`
+- Produces 353 distinct clusters covering mooring areas across Brittany ports
+
 ### make data/processed/.data_analysis.ports_voronoi.stamp
 
 Compute Voronoi tessellation polygons from port locations.
@@ -153,6 +163,7 @@ Derived analytical outputs.
 | `data_analysis.stop_begin` | Potential stop-start positions: segments transitioning from moving to stopped (speed1 > 0.1, speed2 ≤ 0.1) | — |
 | `data_analysis.stop_end` | Potential stop-end positions: segments transitioning from stopped to moving (speed1 ≤ 0.1, speed2 > 0.1) | — |
 | `data_analysis.stops` | Consolidated stop events: stop_begin paired with the chronologically first matching stop_end per vessel | — |
+| `data_analysis.cluster_stops` | DBSCAN-clustered stop events (eps=50 m, minpoints=5, duration ≥ 60 s) with cluster IDs | 55304 |
 
 Columns (`data_analysis.segments`):
 - `mmsi` — Ship identifier
@@ -187,3 +198,7 @@ Columns (`data_analysis.stops`):
 - `nb_pos` — Number of AIS position reports within the stop's timestamp range
 - `avg_dist_centroid` — Average distance (meters) of AIS positions from the stop centroid, indicating spatial dispersion
 - `max_dist_centroid` — Maximum distance (meters) of any AIS position from the stop centroid
+
+Columns (`data_analysis.cluster_stops`):
+- All columns from `data_analysis.stops`
+- `cid` — DBSCAN cluster identifier; `NULL` for noise points not assigned to any cluster
