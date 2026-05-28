@@ -1,4 +1,4 @@
-all: reports/figures/voronoi_map.png reports/figures/cluster_map.png
+all: reports/figures/voronoi_map.png reports/figures/cluster_map.png reports/figures/brest_hulls.png
 
 .PHONY: all clean init
 
@@ -92,6 +92,11 @@ data/processed/.data_analysis.cluster_stops.stamp: data/processed/.data_analysis
 	mkdir --parents $(@D)
 	touch $@
 
+data/processed/.data_analysis.clusters_stops_hulls.stamp: data/processed/.data_analysis.cluster_stops.stamp
+	psql --host=postgis --username=postgres --file=/workdir/src/compute_cluster_hulls.sql
+	mkdir --parents $(@D)
+	touch $@
+
 data/processed/.data_analysis.ports_voronoi.stamp: data/processed/.context_data.ports.stamp
 	psql --host=postgis --username=postgres --file=/workdir/src/compute_voronoi.sql
 	mkdir --parents $(@D)
@@ -118,3 +123,13 @@ data/processed/cluster_map.gpkg: \
 reports/figures/cluster_map.png: data/processed/cluster_map.gpkg
 	mkdir --parents $(@D)
 	bash /workdir/src/plot_cluster_gmt.sh $< $@
+
+data/processed/brest_hulls.gpkg: \
+    data/processed/.data_analysis.clusters_stops_hulls.stamp \
+    data/processed/.context_data.europe_coastline_polygon.stamp
+	mkdir --parents $(@D)
+	bash /workdir/src/export_brest_hulls.sh $@
+
+reports/figures/brest_hulls.png: data/processed/brest_hulls.gpkg
+	mkdir --parents $(@D)
+	bash /workdir/src/plot_brest_hulls.sh $< $@
