@@ -7,45 +7,39 @@
 ![languages](https://img.shields.io/github/languages/top/IslasGECI/maritime_informatics)
 ![commits](https://img.shields.io/github/commit-activity/y/IslasGECI/maritime_informatics)
 
-Analyze vessel traffic around Brittany ports. Generate Voronoi diagrams
-that reveal which port is closest to any point at sea and detect vessel
-stop patterns near mooring areas.
+Analyze vessel traffic around Brittany ports. Generate three maps that
+reveal port influence zones, vessel stop clusters near mooring areas, and
+the shape of those mooring zones.
 
 ## What you can do
 
-- **See port influence zones**: A map showing which maritime areas are
+- **Port influence zones** — A Voronoi map showing which maritime areas are
   closest to each port in Brittany
-- **Track vessel movements**: Import AIS position data to analyze where
-  ships travel and stop
-- **Detect stop patterns**: Identify areas outside ports where vessels
-  linger, such as mooring zones
+- **Stop clusters** — A map of the Port of Brest showing where vessels
+  linger outside the port, with each cluster colored by ID
+- **Mooring zone shapes** — A convex hulls map of the same area showing the
+  precise shape, centroid, and vessel count of each mooring cluster
 
 ## How to use it
 
+Run the container and generate all three maps:
+
 ```bash
 docker compose run --name maritime_informatics_ci --rm islasgeci
-```
-
-Then run:
-
-```bash
-# Generate the complete Voronoi map
 docker exec maritime_informatics_ci make all
-
-# Or import vessel data and compute stop segments
-docker exec maritime_informatics_ci make data/processed/.data_analysis.segments.stamp
 ```
 
-The output map is saved to `reports/figures/voronoi_map.png`.
+Outputs are saved to `reports/figures/`:
+- `voronoi_map.png` — Port influence zones across Brittany
+- `cluster_map.png` — Vessel stop clusters at the Port of Brest
+- `brest_hulls.png` — Convex hulls enclosing each stop cluster
 
 ## Before you start
 
-- Install Docker and Docker Compose on your machine
-- The `data` service downloads maritime datasets automatically on first
-  run
+- Install Docker and Docker Compose
+- The `data` service downloads maritime datasets automatically on first run
 
 ## Coming soon
 
-- Clustering of vessel stops to identify mooring areas outside ports
 - Docking area detection within ports using stop density analysis
 - Multi-layer thematic maps combining traffic, ports, and protected areas

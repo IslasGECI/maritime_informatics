@@ -25,7 +25,7 @@ Then run commands inside the container:
 
 | Command | Description |
 |---------|-------------|
-| `make all` | Build the Voronoi map (default target) |
+| `make all` | Build all three maps: Voronoi tessellation, cluster stops, and convex hulls (default target) |
 | `make clean` | Remove generated data and external archives |
 | `make init` | Configure git inside the container |
 | `make data/external/port.shp` | Extract port shapefile from zip |
@@ -43,6 +43,8 @@ Then run commands inside the container:
 | `make data/processed/cluster_map.gpkg` | Export cluster stops and coastline to GeoPackage for Brest |
 | `make reports/figures/voronoi_map.png` | Generate Voronoi tessellation map |
 | `make reports/figures/cluster_map.png` | Generate cluster stops map for Port of Brest |
+| `make data/processed/brest_hulls.gpkg` | Export convex hulls and centroids to GeoPackage for Brest |
+| `make reports/figures/brest_hulls.png` | Generate convex hulls map for Port of Brest |
 
 ### Make target conventions
 
@@ -62,6 +64,10 @@ Then run commands inside the container:
   targets. Each target does ONE thing.
 - Targets compose via dependencies (e.g.
   `voronoi_map.png: data/processed/brittany_maritime.gpkg`)
+
+- `make clean` only removes files on disk. PostGIS tables persist. To reset the
+  database, run `psql --host=postgis --username=postgres --command 'DROP SCHEMA
+  IF EXISTS data_analysis CASCADE; DROP SCHEMA IF EXISTS ais_data CASCADE;'`
 
 ### Space- and special-character pitfalls
 
@@ -96,6 +102,11 @@ SQL is the single source of truth for DB schema and operations. Scripts in
   For example, `idx_dynamic_ships_mmsi_t` and `idx_dynamic_ships_t` live in
   `init_ais_dynamic_ships.sql`.
 
+- **Determinism**: The segments query uses `LEAD()` ordered by `(mmsi, t, id)`.
+  The `id` column is a bigserial tiebreaker — the AIS data has 1.1M rows with
+  duplicate `(mmsi, t)` pairs, and without it `LEAD()` would produce
+  non-deterministic results across runs.
+
 ## Coordinate Systems
 
 - **Storage (EPSG:3035)**: Geospatial data is stored in the ETRS89-LAEA
@@ -128,6 +139,13 @@ psql --host=postgis --username=postgres \
 ```
 
 Make fails if `grep` finds no match — implicit assertion.
+
+### GMT plotting quirks
+
+GMT 6.3.0 has an OGR attribute-mapping bug for point shapefiles: `-aZ=color_id`
+silently fails to map attributes. The workaround is to export point layers as CSV
+with `-lco GEOMETRY=AS_XY` and pass columns with `-i0,1,3`. Polygon shapefiles
+are unaffected.
 
 ## Shapefile imports
 

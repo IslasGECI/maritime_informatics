@@ -67,7 +67,7 @@ Build the vessel segments table from consecutive AIS position pairs.
 - Dependencies: `data/processed/.ais_data.dynamic_ships.stamp`
 - Table created: `data_analysis.segments`
 - Rows expected: 19030575
-- Uses `LEAD` window function ordered by `(mmsi, t)` to pair consecutive positions per vessel
+- Uses `LEAD` window function ordered by `(mmsi, t, id)` to pair consecutive positions per vessel — the `id` tiebreaker ensures deterministic pairing of the 1.1M rows that share duplicate `(mmsi, t)` values
 
 ### make data/processed/.data_analysis.stop_tables.stamp
 
@@ -137,6 +137,22 @@ Render the cluster stops map to a PNG image.
 - Output: `reports/figures/cluster_map.png`
 - Uses GMT 6 to plot clustered stop centroids (colored by cluster ID via `categorical.cpt`), noise points (small gray transparent dots), and coastline
 
+### make data/processed/brest_hulls.gpkg
+
+Export convex hulls and centroids to a standalone GeoPackage for the Port of Brest area.
+
+- Dependencies: `data/processed/.data_analysis.clusters_stops_hulls.stamp`, `data/processed/osm_land_polygons/land_polygons.shp`
+- Layers: convex hull polygons (colored by cluster ID via `z = cid % 25`), centroid points, coastline clipped to Brest bounds
+- Coastline sourced directly from OSM land polygons shapefile (EPSG:4326)
+
+### make reports/figures/brest_hulls.png
+
+Render the convex hulls map to a PNG image.
+
+- Dependencies: `data/processed/brest_hulls.gpkg`
+- Output: `reports/figures/brest_hulls.png`
+- Uses GMT 6 to plot hull polygons (filled by cluster color), centroid star markers (colored by cluster ID), and coastline
+
 ## Database Schemas
 
 ### context_data
@@ -186,6 +202,7 @@ Derived analytical outputs.
 | `data_analysis.stop_end` | Potential stop-end positions: segments transitioning from stopped to moving (speed1 ≤ 0.1, speed2 > 0.1) | — |
 | `data_analysis.stops` | Consolidated stop events: stop_begin paired with the chronologically first matching stop_end per vessel | — |
 | `data_analysis.cluster_stops` | DBSCAN-clustered stop events (eps=50 m, minpoints=5, duration ≥ 60 s) with cluster IDs | 55304 |
+| `data_analysis.clusters_stops_hulls` | Convex and concave hulls per DBSCAN cluster, plus centroids and stop statistics | 353 |
 
 Columns (`data_analysis.segments`):
 - `mmsi` — Ship identifier
@@ -224,3 +241,14 @@ Columns (`data_analysis.stops`):
 Columns (`data_analysis.cluster_stops`):
 - All columns from `data_analysis.stops`
 - `cid` — DBSCAN cluster identifier; `NULL` for noise points not assigned to any cluster
+
+Columns (`data_analysis.clusters_stops_hulls`):
+- `cid` — Cluster identifier
+- `convex_hull` — Convex hull polygon (EPSG:3035) enclosing all stop centroids in the cluster
+- `concave_hull` — Concave hull polygon (EPSG:3035, alpha 0.75)
+- `bounding_circle` — Minimum bounding circle (EPSG:3035)
+- `centroid` — Geometric centroid (EPSG:3035) of all stops in the cluster
+- `nb_stops` — Number of stop events in this cluster
+- `nb_pos` — Total AIS position reports summed across all stops in the cluster
+- `nb_ships` — Number of distinct vessels that stopped in this area
+- `min_dur`, `avg_dur`, `max_dur` — Stop duration statistics in seconds

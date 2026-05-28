@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- OSM coastline stamp target (`data/processed/.osm_land_polygons.ready.stamp`)
+  replaced by real file target (`data/processed/osm_land_polygons/land_polygons.shp`)
+  so Make tracks the shapefile natively; GPKG and PNG dependencies updated
+  accordingly
+- Vessel segments `ORDER BY` now includes `id` as a tiebreaker to eliminate
+  non-deterministic results from duplicate `(mmsi, t)` pairs in the AIS data
+- Filtered stop count assertion updated from 22987 to 22988
+
+## [0.2.0] - 2026-05-27
+
 ### Added
 
 - Stamp file targets (`data/processed/.<schema>.<table>.stamp`) for database state
@@ -29,6 +41,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cluster map export (`data/processed/cluster_map.gpkg`) and GMT rendering
   (`reports/figures/cluster_map.png`) for the Port of Brest, wired into
   `make all`
+- Convex hull computation per DBSCAN cluster (`data_analysis.clusters_stops_hulls`
+  table) with polygon geometry, centroid, and stop statistics
+- Brest convex hull map pipeline: GeoPackage export (`brest_hulls.gpkg`) and
+  GMT rendering (`reports/figures/brest_hulls.png`)
+- OSM land polygons (split, WGS84) as the coastline data source, replacing
+  the European coastline shapefile for higher vertex density at tight zoom levels
 
 ### Changed
 
@@ -45,11 +63,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   idempotent re-runs without errors
 - `reports/figures/voronoi_map.png` no longer waits for the full AIS pipeline —
   only port, coastline, and Voronoi computations are needed
+- Coastline source changed from European coastline shapefile to OSM land
+  polygons (direct clip from shapefile, no PostGIS round-trip)
 
 ### Removed
 
 - All intermediate phony targets: `init_database`, `init_port`, `init_coastline`,
   `init_vessel`, `compute_vessel_segments`
+- `data/processed/.osm_land_polygons.ready.stamp` stamp target in favour of
+  the shapefile itself as the Make target
+
+### Fixed
+
+- Vessel segments computation now uses `ORDER BY (mmsi, t, id)` to produce
+  deterministic results across runs, fixing a 1-row fluctuation in the filtered
+  stop count caused by duplicate timestamps in the AIS data
 
 ## [0.1.0] - 2026-05-26
 
@@ -76,5 +104,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Composite `make init_db` target removed; use `make init_database`,
   `make init_port`, and `make init_coastline` individually
 
-[unreleased]: https://github.com/IslasGECI/maritime_informatics/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/IslasGECI/maritime_informatics/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/IslasGECI/maritime_informatics/releases/tag/v0.2.0
 [0.1.0]: https://github.com/IslasGECI/maritime_informatics/releases/tag/v0.1.0
