@@ -74,6 +74,9 @@ data/processed/.data_analysis.stop_tables.stamp: data/processed/.data_analysis.s
 
 data/processed/.data_analysis.stops.stamp: data/processed/.data_analysis.stop_tables.stamp
 	psql --host=postgis --username=postgres --file=/workdir/src/compute_stops.sql
+	psql --host=postgis --username=postgres \
+	    --command "SELECT count(*) FROM data_analysis.stops WHERE duration_s >= (5*60) AND nb_pos > 5 AND avg_dist_centroid <= 10;" \
+	    | grep 22988
 	mkdir --parents $(@D)
 	touch $@
 
