@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `max_dist_centroid`) as dispersion indicators for characterising stop nature
 - DBSCAN clustering of stop centroids into `data_analysis.cluster_stops` with
   eps=50 m, minpoints=5, yielding 353 stationary-area clusters
+- Cluster map export (`data/processed/cluster_map.gpkg`) and GMT rendering
+  (`reports/figures/cluster_map.png`) for the Port of Brest, wired into
+  `make all`
 
 ### Changed
 

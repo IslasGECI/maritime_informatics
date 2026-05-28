@@ -114,6 +114,22 @@ Render the Voronoi tessellation map to a PNG image.
 - Output: `reports/figures/voronoi_map.png`
 - Uses GMT 6 to plot Voronoi polygons, coastline, and port points
 
+### make data/processed/cluster_map.gpkg
+
+Export cluster stops and coastline to a standalone GeoPackage for the Port of Brest area.
+
+- Dependencies: `data/processed/.data_analysis.cluster_stops.stamp`, `data/processed/.context_data.europe_coastline_polygon.stamp`
+- Layers: cluster stops (with `color_id = cid % 25`), noise points, coastline clipped to Brest bounds
+- All geometries reprojected to EPSG:4326
+
+### make reports/figures/cluster_map.png
+
+Render the cluster stops map to a PNG image.
+
+- Dependencies: `data/processed/cluster_map.gpkg`
+- Output: `reports/figures/cluster_map.png`
+- Uses GMT 6 to plot clustered stop centroids (colored by cluster ID via `categorical.cpt`), noise points (small gray transparent dots), and coastline
+
 ## Database Schemas
 
 ### context_data

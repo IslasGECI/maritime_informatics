@@ -39,7 +39,9 @@ Then run commands inside the container:
 | `make data/processed/.data_analysis.cluster_stops.stamp` | Cluster stop centroids with DBSCAN to detect stationary areas |
 | `make data/processed/.data_analysis.ports_voronoi.stamp` | Compute Voronoi polygons from port locations |
 | `make data/processed/brittany_maritime.gpkg` | Export all layers to GeoPackage |
+| `make data/processed/cluster_map.gpkg` | Export cluster stops and coastline to GeoPackage for Brest |
 | `make reports/figures/voronoi_map.png` | Generate Voronoi tessellation map |
+| `make reports/figures/cluster_map.png` | Generate cluster stops map for Port of Brest |
 
 ### Make target conventions
 

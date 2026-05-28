@@ -1,4 +1,4 @@
-all: reports/figures/voronoi_map.png
+all: reports/figures/voronoi_map.png reports/figures/cluster_map.png
 
 .PHONY: all clean init
 
@@ -107,3 +107,13 @@ data/processed/brittany_maritime.gpkg: \
 reports/figures/voronoi_map.png: data/processed/brittany_maritime.gpkg
 	mkdir --parents $(@D)
 	bash /workdir/src/plot_voronoi_gmt.sh $< $@
+
+data/processed/cluster_map.gpkg: \
+    data/processed/.data_analysis.cluster_stops.stamp \
+    data/processed/.context_data.europe_coastline_polygon.stamp
+	mkdir --parents $(@D)
+	bash /workdir/src/export_cluster_gpkg.sh $@
+
+reports/figures/cluster_map.png: data/processed/cluster_map.gpkg
+	mkdir --parents $(@D)
+	bash /workdir/src/plot_cluster_gmt.sh $< $@
