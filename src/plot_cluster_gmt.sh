@@ -41,7 +41,7 @@ gmt begin "cluster_map" png
         -t50
 
     # Cluster stops (top layer) - colored by cluster ID
-    # CSV columns: X, Y, cid, color_id, dummy  →  col 3 = color_id
+    # CSV columns: X, Y, cid, z  →  col 3 = z value (cid % 25) for CPT lookup
     gmt plot "$TMP_DIR/clusters.csv" \
         -i0,1,3 \
         -Sc0.15c \

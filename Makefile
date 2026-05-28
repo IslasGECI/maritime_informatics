@@ -3,8 +3,9 @@ all: reports/figures/voronoi_map.png reports/figures/cluster_map.png
 .PHONY: all clean init
 
 clean:
-	rm --force --recursive data/processed
 	rm --force --recursive data/external
+	rm --force --recursive data/processed
+	rm --force --recursive reports/figures
 
 init:
 	git config --global --add safe.directory /workdir
@@ -76,7 +77,7 @@ data/processed/.data_analysis.stops.stamp: data/processed/.data_analysis.stop_ta
 	psql --host=postgis --username=postgres --file=/workdir/src/compute_stops.sql
 	psql --host=postgis --username=postgres \
 	    --command "SELECT count(*) FROM data_analysis.stops WHERE duration_s >= (5*60) AND nb_pos > 5 AND avg_dist_centroid <= 10;" \
-	    | grep 22988
+	    | grep 22987
 	mkdir --parents $(@D)
 	touch $@
 

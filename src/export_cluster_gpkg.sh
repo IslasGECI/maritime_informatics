@@ -9,7 +9,7 @@ POSTGRES="PG:host=postgis user=postgres dbname=postgres"
 ogr2ogr -f GPKG \
     -overwrite \
     -nln data_analysis.cluster_stops \
-    -sql "SELECT cid, cid % 25 AS color_id, 0 AS dummy, ST_Transform(centr3035, 4326) AS geom FROM data_analysis.cluster_stops WHERE cid IS NOT NULL" \
+    -sql "SELECT cid, cid % 25 AS z, ST_Transform(centr3035, 4326) AS geom FROM data_analysis.cluster_stops WHERE cid IS NOT NULL" \
     "$OUTPUT" \
     "$POSTGRES"
 
