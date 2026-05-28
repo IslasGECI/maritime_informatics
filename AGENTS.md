@@ -32,7 +32,7 @@ Then run commands inside the container:
 | `make data/external/nari_dynamic.csv` | Extract AIS CSV from zip |
 | `make data/processed/.context_data.ports.stamp` | Import port shapefile into `context_data.ports` |
 | `make data/external/land-polygons-split-4326.zip` | Download OSM land polygons from FOSSGIS data server |
-| `make data/processed/.osm_land_polygons.ready.stamp` | Extract OSM land polygons shapefile from archive |
+| `make data/processed/osm_land_polygons/land_polygons.shp` | Extract OSM land polygons shapefile from archive |
 | `make data/processed/.ais_data.dynamic_ships.stamp` | Import AIS dynamic positions into `ais_data.dynamic_ships` |
 | `make data/processed/.data_analysis.segments.stamp` | Build vessel segments table from AIS positions |
 | `make data/processed/.data_analysis.stop_tables.stamp` | Build stop-detection auxiliary tables from vessel segments |

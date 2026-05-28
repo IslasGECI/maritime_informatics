@@ -43,13 +43,13 @@ Download the OSM land polygons shapefile (split, WGS84) from the FOSSGIS data se
 - Data source: `https://osmdata.openstreetmap.de/download/land-polygons-split-4326.zip`
 - Notes: ~630 MB download. Uses OSM coastline data processed by the German FOSSGIS society.
 
-### make data/processed/.osm_land_polygons.ready.stamp
+### make data/processed/osm_land_polygons/land_polygons.shp
 
 Extract the OSM land polygons shapefile from the downloaded archive.
 
 - Dependencies: `data/external/land-polygons-split-4326.zip`
 - Data source: OSM-derived land polygons at `/workdir/data/processed/osm_land_polygons/land_polygons.shp`
-- Notes: Native EPSG:4326, no reprojection needed. Replaces the former European coastline shapefile for all maps.
+- Notes: Native EPSG:4326, no reprojection needed. The shapefile itself is the Make target — no stamp proxy needed since these are real files on disk.
 
 ### make data/processed/.ais_data.dynamic_ships.stamp
 
@@ -110,7 +110,7 @@ Compute Voronoi tessellation polygons from port locations.
 
 Export all layers to a single GeoPackage.
 
-- Dependencies: `data/processed/.data_analysis.ports_voronoi.stamp`, `data/processed/.osm_land_polygons.ready.stamp`
+- Dependencies: `data/processed/.data_analysis.ports_voronoi.stamp`, `data/processed/osm_land_polygons/land_polygons.shp`
 - Clips OSM land polygons to Brittany bounds
 
 ### make reports/figures/voronoi_map.png
@@ -125,7 +125,7 @@ Render the Voronoi tessellation map to a PNG image.
 
 Export cluster stops and coastline to a standalone GeoPackage for the Port of Brest area.
 
-- Dependencies: `data/processed/.data_analysis.cluster_stops.stamp`, `data/processed/.osm_land_polygons.ready.stamp`
+- Dependencies: `data/processed/.data_analysis.cluster_stops.stamp`, `data/processed/osm_land_polygons/land_polygons.shp`
 - Layers: cluster stops (with `z = cid % 25`), noise points, coastline clipped to Brest bounds
 - Coastline sourced directly from OSM land polygons shapefile (EPSG:4326)
 

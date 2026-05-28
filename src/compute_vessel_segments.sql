@@ -14,13 +14,13 @@ CREATE TABLE data_analysis.segments AS
                AS speed_m_s -- speed in m/s
     FROM (
         SELECT mmsi, -- ship identifier
-               LEAD(mmsi) OVER (ORDER BY mmsi, t) AS mmsi2, -- next MMSI
+               LEAD(mmsi) OVER (ORDER BY mmsi, t, id) AS mmsi2, -- next MMSI
                t AS t1, -- starting time
-               LEAD(t) OVER (ORDER BY mmsi, t) AS t2, -- ending time
+               LEAD(t) OVER (ORDER BY mmsi, t, id) AS t2, -- ending time
                speed AS speed1, -- initial speed
-               LEAD(speed) OVER (ORDER BY mmsi, t) AS speed2, -- final speed
+               LEAD(speed) OVER (ORDER BY mmsi, t, id) AS speed2, -- final speed
                geom3035 AS p1, -- initial point
-               LEAD(geom3035) OVER (ORDER BY mmsi, t) AS p2 -- final point
+               LEAD(geom3035) OVER (ORDER BY mmsi, t, id) AS p2 -- final point
         FROM ais_data.dynamic_ships
     ) AS q1
 WHERE mmsi = mmsi2; -- filter out different MMSI

@@ -39,8 +39,8 @@ data/processed/.context_data.ports.stamp: data/external/port.shp
 	mkdir --parents $(@D)
 	touch $@
 
-data/processed/.osm_land_polygons.ready.stamp: data/external/land-polygons-split-4326.zip
-	unzip -o -j "$<" "land-polygons-split-4326/land_polygons.*" -d data/processed/osm_land_polygons
+data/processed/osm_land_polygons/land_polygons.shp: data/external/land-polygons-split-4326.zip
+	unzip -o -j "$<" "land-polygons-split-4326/land_polygons.*" -d $(@D)
 	touch $@
 
 data/processed/.ais_data.dynamic_ships.stamp: data/external/nari_dynamic.csv
@@ -72,7 +72,7 @@ data/processed/.data_analysis.stops.stamp: data/processed/.data_analysis.stop_ta
 	psql --host=postgis --username=postgres --file=/workdir/src/compute_stops.sql
 	psql --host=postgis --username=postgres \
 	    --command "SELECT count(*) FROM data_analysis.stops WHERE duration_s >= (5*60) AND nb_pos > 5 AND avg_dist_centroid <= 10;" \
-	    | grep 22987
+	    | grep 22988
 	mkdir --parents $(@D)
 	touch $@
 
@@ -101,7 +101,7 @@ data/processed/.data_analysis.ports_voronoi.stamp: data/processed/.context_data.
 
 data/processed/brittany_maritime.gpkg: \
     data/processed/.data_analysis.ports_voronoi.stamp \
-    data/processed/.osm_land_polygons.ready.stamp
+    data/processed/osm_land_polygons/land_polygons.shp
 	mkdir --parents $(@D)
 	bash /workdir/src/export_voronoi_gpkg.sh $@
 
@@ -111,7 +111,7 @@ reports/figures/voronoi_map.png: data/processed/brittany_maritime.gpkg
 
 data/processed/cluster_map.gpkg: \
     data/processed/.data_analysis.cluster_stops.stamp \
-    data/processed/.osm_land_polygons.ready.stamp
+    data/processed/osm_land_polygons/land_polygons.shp
 	mkdir --parents $(@D)
 	bash /workdir/src/export_cluster_gpkg.sh $@
 
@@ -121,7 +121,7 @@ reports/figures/cluster_map.png: data/processed/cluster_map.gpkg
 
 data/processed/brest_hulls.gpkg: \
     data/processed/.data_analysis.clusters_stops_hulls.stamp \
-    data/processed/.osm_land_polygons.ready.stamp
+    data/processed/osm_land_polygons/land_polygons.shp
 	mkdir --parents $(@D)
 	bash /workdir/src/export_brest_hulls.sh $@
 
