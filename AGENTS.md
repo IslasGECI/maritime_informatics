@@ -16,10 +16,10 @@ The `data/external/` directory is ephemeral. It is created and populated by the
 files under `data/processed/` or `data/external/`.
 
 Before invoking the agent, start the container:
-- `docker compose run --name maritime_informatics_ci --rm islasgeci`
+- `docker compose run --name maritime_informatics_dev --rm islasgeci`
 
 Then run commands inside the container:
-- `docker exec maritime_informatics_ci <command>`
+- `docker exec maritime_informatics_dev <command>`
 
 ## Make commands
 

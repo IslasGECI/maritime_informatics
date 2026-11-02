@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: islasgeci/maritime_informatics:latest
-    container_name: maritime_informatics_ci
+    container_name: maritime_informatics_dev
     command: bash
     stdin_open: true
     tty: true

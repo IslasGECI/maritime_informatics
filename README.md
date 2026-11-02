@@ -25,8 +25,8 @@ the shape of those mooring zones.
 Run the container and generate all three maps:
 
 ```bash
-docker compose run --name maritime_informatics_ci --rm islasgeci
-docker exec maritime_informatics_ci make all
+docker compose run --name maritime_informatics_dev --rm islasgeci
+docker exec maritime_informatics_dev make all
 ```
 
 Outputs are saved to `reports/figures/`:
